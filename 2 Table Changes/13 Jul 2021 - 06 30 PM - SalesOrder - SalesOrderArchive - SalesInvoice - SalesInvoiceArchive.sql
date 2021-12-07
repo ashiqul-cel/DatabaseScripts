@@ -1,0 +1,12 @@
+ALTER TABLE SalesOrders ADD UploadSRID INT NULL;
+ALTER TABLE SalesOrders ADD UploadTOID INT NULL;
+ALTER TABLE SalesInvoices ADD UploadSRID INT NULL;
+ALTER TABLE SalesInvoices ADD UploadTOID INT NULL;
+
+ALTER TABLE SalesOrdersArchive ADD UploadSRID INT NULL;
+ALTER TABLE SalesOrdersArchive ADD UploadTOID INT NULL;
+ALTER TABLE SalesInvoicesArchive ADD UploadSRID INT NULL;
+ALTER TABLE SalesInvoicesArchive ADD UploadTOID INT NULL;
+
+
+

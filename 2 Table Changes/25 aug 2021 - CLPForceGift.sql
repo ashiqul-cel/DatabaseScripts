@@ -1,0 +1,4 @@
+
+
+
+ALTER TABLE CLPForceGift ADD IsProcessed INT NULL 
