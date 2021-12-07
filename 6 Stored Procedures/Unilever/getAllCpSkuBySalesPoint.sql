@@ -1,0 +1,14 @@
+--select * from  SalesPoints
+--where code = 'd16'
+SELECT * FROM
+( SELECT DCPS.SKUCPID, S.Code SKUCode, S.Name SKUName, SCP.Code CPSKUCode, SCP.Name CPSKUName,
+DCPS.CPFor, DCPS.CPGet, SP.Code DBCode, SP.Name DBName,
+( CASE WHEN DCPS.Status = 16 THEN 'Active' ELSE 'Inactive' END )[Status],
+( CASE WHEN DCPS.DefaultCP = 1 THEN 'Yes' ELSE 'No' END )DefaultCP,
+ROW_NUMBER() OVER (PARTITION BY DCPS.SKUID ORDER BY DCPS.DefaultCP DESC) AS RowNo
+FROM DefaultCPSKUs DCPS
+LEFT JOIN SKUs S ON DCPS.SKUID = S.SKUID
+LEFT JOIN SKUs SCP ON DCPS.CPSKUID = SCP.SKUID
+LEFT JOIN SalesPoints SP ON SP.SalesPointID = DCPS.SalesPointID
+WHERE DCPS.SalesPointID = 62 ) A
+WHERE A.RowNo = 1

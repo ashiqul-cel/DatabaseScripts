@@ -1,0 +1,1 @@
+SELECT TripCostHeadID, CostHeadName, (CASE [Status] WHEN 16 THEN 'Active' ELSE 'Disable' END) [Status] FROM TripCostHeads

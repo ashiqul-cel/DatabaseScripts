@@ -1,0 +1,65 @@
+USE [UnileverOS]
+GO
+
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE TABLE [dbo].[DefaultCPSKUs](
+	DefaultCPSKUId int IDENTITY(1,1) NOT NULL,
+	SKUID int NOT NULL,
+	CPSKUID int NOT NULL,
+	CPFor int NULL,
+	CPGet int NULL,
+	DefaultCP int NULL,
+	SalesPointID int NULL,
+	[Status] int NULL,
+	CreatedBy int NOT NULL,
+    CreatedDate datetime NOT NULL CONSTRAINT [DF_DefaultCPSKUs_CreatedDate]  DEFAULT (getdate()),
+    ModifiedBy int NULL,
+    ModifiedDate datetime NULL,
+	SystemID int NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[DefaultCPSKUId] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+
+ALTER TABLE [dbo].[DefaultCPSKUs]  WITH CHECK ADD CONSTRAINT [FK_DefaultCPSKUs_CreatedBy] FOREIGN KEY([CreatedBy])
+REFERENCES [dbo].[Users] ([UserID])
+GO
+
+ALTER TABLE [dbo].[DefaultCPSKUs] CHECK CONSTRAINT [FK_DefaultCPSKUs_CreatedBy]
+GO
+
+ALTER TABLE [dbo].[DefaultCPSKUs]  WITH CHECK ADD CONSTRAINT [FK_DefaultCPSKUs_ModifiedBy] FOREIGN KEY([ModifiedBy])
+REFERENCES [dbo].[Users] ([UserID])
+GO
+
+ALTER TABLE [dbo].[DefaultCPSKUs] CHECK CONSTRAINT [FK_DefaultCPSKUs_ModifiedBy]
+GO
+
+ALTER TABLE [dbo].[DefaultCPSKUs]  WITH CHECK ADD CONSTRAINT [FK_DefaultCPSKUs_SKUID] FOREIGN KEY([SKUID])
+REFERENCES [dbo].[SKUs] ([SKUID])
+GO
+
+ALTER TABLE [dbo].[DefaultCPSKUs] CHECK CONSTRAINT [FK_DefaultCPSKUs_SKUID]
+GO
+
+ALTER TABLE [dbo].[DefaultCPSKUs]  WITH CHECK ADD CONSTRAINT [FK_DefaultCPSKUs_CPSKUID] FOREIGN KEY([CPSKUID])
+REFERENCES [dbo].[SKUs] ([SKUID])
+GO
+
+ALTER TABLE [dbo].[DefaultCPSKUs] CHECK CONSTRAINT [FK_DefaultCPSKUs_CPSKUID]
+GO
+
+ALTER TABLE [dbo].[DefaultCPSKUs]  WITH CHECK ADD CONSTRAINT [FK_DefaultCPSKUs_SalesPointID] FOREIGN KEY([SalesPointID])
+REFERENCES [dbo].[SalesPoints] ([SalesPointID])
+GO
+
+ALTER TABLE [dbo].[DefaultCPSKUs] CHECK CONSTRAINT [FK_DefaultCPSKUs_SalesPointID]
+GO
