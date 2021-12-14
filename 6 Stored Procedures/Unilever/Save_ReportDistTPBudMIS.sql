@@ -42,11 +42,11 @@ DECLARE	@OnDate DATETIME, @SalesPoint INT, @Outer_loop INT, @inner_loop INT, @TP
 		WHILE @inner_loop = 0
 		BEGIN		
 		
-			DECLARE atchdToOrder CURSOR FOR
+			DECLARE promotions CURSOR FOR
 			 select promotionid from salespromotions where @OnDate between startdate and enddate
    			 
-			 OPEN atchdToOrder 
-			 FETCH NEXT FROM atchdToOrder INTO @TPID
+			 OPEN promotions 
+			 FETCH NEXT FROM promotions INTO @TPID
 			 SET @new_inr_loop = @@FETCH_STATUS
 			 WHILE @new_inr_loop = 0
 
@@ -57,25 +57,37 @@ DECLARE	@OnDate DATETIME, @SalesPoint INT, @Outer_loop INT, @inner_loop INT, @TP
 				INSERT INTO [dbo].[ReportDistributorTPBudgetMISSummary]
 				([RegionId],[RegionCode],[RegionName],[AreaId],[AreaCode],[AreaName],[TerritoryID],[TerritoryCode],[TerritoryName]
 				,[DBID],[DBCode],[DBName],[TownName],[ProgramID],[ProgramName],[ProgramCode],[OutletCode],[StartDate],[EndDate]
-				,[MaxCumulativeNo],[MinCumulativeNo],[TPBudget],[Achievement],[RemainingAmount])
+				,[MaxCumulativeNo],[MinCumulativeNo],[TPBudget],[Achievement],[RemainingAmount], CumulativeAchieve, CumulativeBalance)
 			    						
-				select mh2.NodeID,mh2.Code,mh2.Name,mh1.NodeID,mh1.Code,mh1.Name,mh.NodeID,mh.Code,mh.Name,
+				SELECT mh2.NodeID,mh2.Code,mh2.Name,mh1.NodeID,mh1.Code,mh1.Name,mh.NodeID,mh.Code,mh.Name,
 				d.SalesPointID,d.code,d.name, d.TownName, sp.promotionid, sp.name, sp.code, tpc.outletcode,sp.startdate, sp.enddate,
-				isnull(tpc.MaxCumNo_Outlet,0) ,isnull(tpc.MinCumNo_Outlet,0), sp.[Target], sp.Achieved, (isnull(sp.[Target],0) - isnull(sp.Achieved,0))rem
+				ISNULL(tpc.MaxCumNo_Outlet,0) MaxCumNo, ISNULL(tpc.MinCumNo_Outlet,0) MinCumNo, sp.[Target], sp.Achieved, (ISNULL(sp.[Target],0) - ISNULL(sp.Achieved,0))rem,
+				ISNULL(T.CumulativeAchieve, 0) CumulativeAchieve, (ISNULL(tpc.MaxCumNo_Outlet,0) - ISNULL(T.CumulativeAchieve, 0)) CumulativeBalance
 				FROM Salespromotions sp
 				INNER JOIN SPSalespoints sps ON sps.SPID = sp.Promotionid 
 				INNER JOIN Salespoints d ON sps.SalesPointID = d.SalesPointID
-				join salespointmhnodes smh on smh.salespointid = d.salespointid
-				join mhnode mh on smh.nodeid = mh.nodeid
-				join mhnode mh1 on mh1.nodeid = mh.parentid
-				join mhnode mh2 on mh2.nodeid = mh1.parentid
-				left join TPCumulativeOutlet tpc on tpc.tpcode = sp.code
+				INNER JOIN salespointmhnodes smh on smh.salespointid = d.salespointid
+				INNER JOIN mhnode mh on smh.nodeid = mh.nodeid
+				INNER JOIN mhnode mh1 on mh1.nodeid = mh.parentid
+				INNER JOIN mhnode mh2 on mh2.nodeid = mh1.parentid
+				INNER JOIN TPCumulativeOutlet tpc on tpc.tpcode = sp.code
+				LEFT JOIN Customers AS c ON tpc.OutletCode = c.Code
+				LEFT JOIN
+				(
+					SELECT sp.PromotionID, si.CustomerID, CAST(SUM(ISNULL(sip.OfferedQty, 0)) / NULLIF(MAX(s.Threshold), 0) AS DECIMAL(18, 0)) CumulativeAchieve
+					FROM SalesPromotions AS sp
+					INNER JOIN SalesInvoicePromotion AS sip ON sp.PromotionID = sip.SalesPromotionID
+					INNER JOIN SalesInvoices AS si ON sip.SalesInvoiceID = si.InvoiceID
+					INNER JOIN SPSlabs AS s ON sp.PromotionID = s.SPID AND sip.SlabID = s.SlabID
+					WHERE sp.PromotionID = @TPID
+					GROUP BY sp.PromotionID, si.CustomerID
+				) T ON sp.PromotionID = T.PromotionID AND c.CustomerID = T.CustomerID
 				WHERE sp.Promotionid = @TPID AND sps.SalesPointID = @SalesPoint AND tpc.SalesPointID = @SalesPoint
 				
-				FETCH NEXT FROM atchdToOrder INTO @TPID
+				FETCH NEXT FROM promotions INTO @TPID
 				SET @new_inr_loop = @@FETCH_STATUS
 			 END
-			 DEALLOCATE atchdToOrder	
+			 DEALLOCATE promotions	
 
 			 FETCH NEXT FROM Dates INTO @OnDate
 			 SET @inner_loop = @@FETCH_STATUS
@@ -87,10 +99,3 @@ DECLARE	@OnDate DATETIME, @SalesPoint INT, @Outer_loop INT, @inner_loop INT, @TP
    END   
    DEALLOCATE SalesPoints  
    END
-    
-  SET NOCOUNT OFF;
-
-
-GO
-
-

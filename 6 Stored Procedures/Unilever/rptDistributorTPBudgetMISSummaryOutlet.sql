@@ -8,13 +8,13 @@ SET NOCOUNT ON;
 
 SELECT 'Region', 'Area', 'Territory', 'Town Name'
 , 'Distributor Code', 'Program Code', 'Program Name', 'Outlet Code', 'Start Date', 'End Date'
-, 'MinCumulativeNo', 'MaxCumulativeNo', 'Achieved', 'Balance'
+, 'MinCumulativeNo', 'MaxCumulativeNo', 'CumulativeAchieve', 'CumulativeBalance'
 
 UNION ALL
 
 SELECT CAST(RegionName AS VARCHAR), CAST(AreaName AS VARCHAR), CAST(TerritoryName AS VARCHAR), CAST(TownName AS VARCHAR)
 , CAST(DBCode AS VARCHAR), CAST(ProgramCode AS VARCHAR), CAST(ProgramName AS VARCHAR(200)), CAST(OutletCode AS VARCHAR), CAST(CAST(StartDate AS DATE) AS VARCHAR), CAST(CAST(EndDate AS DATE) AS VARCHAR)
-, CAST(MinCumulativeNo AS VARCHAR), CAST(MaxCumulativeNo AS VARCHAR), CAST(Achievement AS VARCHAR), CAST((MaxCumulativeNo - Achievement) AS VARCHAR)
+, CAST(MinCumulativeNo AS VARCHAR), CAST(MaxCumulativeNo AS VARCHAR), CAST(CumulativeAchieve AS VARCHAR), CAST(CumulativeBalance AS VARCHAR)
 
 FROM ReportDistributorTPBudgetMISSummary
 WHERE DBID IN (SELECT Number from STRING_TO_INT(@SalesPointIDs))
