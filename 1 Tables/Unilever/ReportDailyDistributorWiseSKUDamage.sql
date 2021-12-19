@@ -2,7 +2,7 @@ USE [UnileverOS]
 GO
 
 CREATE TABLE [dbo].[ReportDailyDistributorWiseSKUDamage](
-	PKID int NOT NULL,
+	PKID INT IDENTITY(1,1) NOT NULL,
 	[DATE] datetime NOT NULL,
 	[TYPE] int NOT NULL,
 	RegionId int NOT NULL,
@@ -17,6 +17,7 @@ CREATE TABLE [dbo].[ReportDailyDistributorWiseSKUDamage](
 	SalesPointID int NOT NULL,
 	SalesPointCode varchar(50) NOT NULL,
 	SalesPointName varchar(250) NOT NULL,
+	TownName varchar(250) NOT NULL,
 	Category varchar(250) NOT NULL,
 	VariantCode varchar(50) NOT NULL,
 	VariantName varchar(250) NOT NULL,
@@ -38,7 +39,7 @@ CREATE TABLE [dbo].[ReportDailyDistributorWiseSKUDamage](
 	ChildReasonCode varchar(50) NOT NULL,
 	ChildReasonDescription varchar(max) NULL,
 	DamageQty money NOT NULL,
-	SecondarySalesQty money NOT NULL,
+	SecondarySalesQty money NULL,
 	CompanyCode varchar(50) NOT NULL,
 	[Weight] money NOT NULL,
 	[T/D] VARCHAR NULL
