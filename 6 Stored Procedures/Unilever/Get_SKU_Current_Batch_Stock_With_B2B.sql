@@ -2,11 +2,9 @@ USE [UnileverOS]
 GO
 
 ALTER PROCEDURE [dbo].[Get_SKU_Current_Batch_Stock_With_B2B]
-@ParamSalesPointID VARCHAR(500), @StartDate DATETIME = NULL, @OnDate DATETIME = NULL
+@SalesPointID INT
 AS
 SET NOCOUNT ON;
-
-DECLARE @SalesPoint INT = @ParamSalesPointID
 
 SELECT 'Region', 'Area', 'Territory', 'Town', 
 'SalesPoint', 'Flavor', 'Brand', 'SKU Code', 'SKU Name', 'Pack size', 'BatchNo', 
@@ -67,7 +65,7 @@ FROM
 	FROM Challans AS CH 
 	INNER JOIN SalesOrders AS SO ON SO.ChallanID = CH.ChallanID
 	INNER JOIN SalesOrderItem AS SOI ON SOI.OrderID = SO.OrderID
-	WHERE SO.SalesPointID = @SalesPoint AND CH.ChallanStatus IN (1,2) AND SO.OrderSource = 2 AND SOI.SKUID = SS.SKUID
+	WHERE SO.SalesPointID = @SalesPointID AND CH.ChallanStatus IN (1,2) AND SO.OrderSource = 2 AND SOI.SKUID = SS.SKUID
 	), 0) AS B2BBookedStock
 	
 	FROM 
@@ -86,7 +84,7 @@ FROM
 				WHEN ss.StockTypeID = 2 THEN 'InHouseDamage'
 			END AS StockType
 			FROM SKUBatchStocks AS ss
-			WHERE ss.SalesPointID = @SalesPoint 
+			WHERE ss.SalesPointID = @SalesPointID 
 		) as S
 		PIVOT 
 		(
