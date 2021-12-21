@@ -1,7 +1,7 @@
 USE [UnileverOS]
 GO
 
-CREATE PROCEDURE [dbo].[Get_SKU_Current_Batch_Stock_With_B2B]
+ALTER PROCEDURE [dbo].[Get_SKU_Current_Batch_Stock_With_B2B]
 @ParamSalesPointID VARCHAR(500), @StartDate DATETIME = NULL, @OnDate DATETIME = NULL
 AS
 SET NOCOUNT ON;
@@ -9,7 +9,7 @@ SET NOCOUNT ON;
 DECLARE @SalesPoint INT = @ParamSalesPointID
 
 SELECT 'Region', 'Area', 'Territory', 'Town', 
-'SalesPoint', 'Flavor', 'Brand', 'SKU Code', 'SKU Name', 'Pack size', 'BatchNo.', 
+'SalesPoint', 'Flavor', 'Brand', 'SKU Code', 'SKU Name', 'Pack size', 'BatchNo', 
 'Available Stock (CTN)', 'Available Stock (PCS)', 'Available Stock (MT)', 
 'Sound Stock (CTN)', 'Sound Stock (PCS)', 'Sound Stock (MT)', 
 'Transit Stock (CTN)', 'Transit Stock (PCS)', 'Transit Stock (MT)',
@@ -25,51 +25,49 @@ SELECT 'Region', 'Area', 'Territory', 'Town',
 
 UNION ALL
 
-SELECT CAST(Region AS VARCHAR), CAST(Area AS VARCHAR), CAST(Territory AS VARCHAR), CAST(Town  AS VARCHAR), 
-CAST(SPName AS VARCHAR), CAST(Flavor AS VARCHAR), CAST(BrandName AS VARCHAR), CAST(SKUCode AS VARCHAR), 
-CAST(SKUName AS VARCHAR(500)), CAST(CartonPcsRatio AS VARCHAR), CAST(BatchNo AS VARCHAR),
+SELECT M3.Name, M2.Name, M.Name, sp.TownName, sp.Name,
+vphu.Level6Name Flavor, vs.BrandName, vs.Code SKUCode,
+vs.Name SKUName, CAST(vs.CartonPcsRatio AS VARCHAR), BatchNo,
 -- Available Stock
-CAST(FLOOR(Available/F.CartonPcsRatio) AS VARCHAR), CAST((Available % F.CartonPcsRatio) AS VARCHAR), CAST(((Available)*F.[Weight]/1000000) AS VARCHAR),
+CAST(FLOOR(Available/vs.CartonPcsRatio) AS VARCHAR), CAST((Available % vs.CartonPcsRatio) AS VARCHAR), CAST((Available*vs.[Weight]/1000000) AS VARCHAR),
 -- Sound Stock
-CAST(FLOOR(Sound/F.CartonPcsRatio) AS VARCHAR), CAST((Sound % F.CartonPcsRatio) AS VARCHAR), CAST(((Sound)*F.[Weight]/1000000) AS VARCHAR),
+CAST(FLOOR(Sound/vs.CartonPcsRatio) AS VARCHAR), CAST((Sound % vs.CartonPcsRatio) AS VARCHAR), CAST(((Sound)*vs.[Weight]/1000000) AS VARCHAR),
 -- Transit Stock
-CAST(FLOOR(TrnsStock/F.CartonPcsRatio) AS VARCHAR), CAST((TrnsStock % F.CartonPcsRatio) AS VARCHAR), CAST(((TrnsStock)*F.[Weight]/1000000) AS VARCHAR),
+CAST(FLOOR(TrnsStock/vs.CartonPcsRatio) AS VARCHAR), CAST((TrnsStock % vs.CartonPcsRatio) AS VARCHAR), CAST(((TrnsStock)*vs.[Weight]/1000000) AS VARCHAR),
 -- Booked Stock
-CAST(FLOOR(Issue/F.CartonPcsRatio) AS VARCHAR), CAST((Issue % F.CartonPcsRatio) AS VARCHAR), CAST(((Issue)*F.[Weight]/1000000) AS VARCHAR),
+CAST(FLOOR(Issue/vs.CartonPcsRatio) AS VARCHAR), CAST((Issue % vs.CartonPcsRatio) AS VARCHAR), CAST(((Issue)*vs.[Weight]/1000000) AS VARCHAR),
 -- B2B Booked Stock
-CAST(FLOOR(B2BBookedStock/F.CartonPcsRatio) AS VARCHAR), CAST((B2BBookedStock % F.CartonPcsRatio) AS VARCHAR), CAST(((B2BBookedStock)*F.[Weight]/1000000) AS VARCHAR),
+CAST(FLOOR(B2BBookedStock/vs.CartonPcsRatio) AS VARCHAR), CAST((B2BBookedStock % vs.CartonPcsRatio) AS VARCHAR), CAST(((B2BBookedStock)*vs.[Weight]/1000000) AS VARCHAR),
 -- Carrier Damage
-CAST(FLOOR(DmgStk/F.CartonPcsRatio) AS VARCHAR), CAST((DmgStk % F.CartonPcsRatio) AS VARCHAR), CAST(((DmgStk)*F.[Weight]/1000000) AS VARCHAR),
+CAST(FLOOR(DmgStk/vs.CartonPcsRatio) AS VARCHAR), CAST((DmgStk % vs.CartonPcsRatio) AS VARCHAR), CAST(((DmgStk)*vs.[Weight]/1000000) AS VARCHAR),
 -- InHouse Damage
-CAST(FLOOR(InHouseDamage/F.CartonPcsRatio) AS VARCHAR), CAST((InHouseDamage % F.CartonPcsRatio) AS VARCHAR), CAST((InHouseDamage*F.[Weight]/1000000) AS VARCHAR),
+CAST(FLOOR(InHouseDamage/vs.CartonPcsRatio) AS VARCHAR), CAST((InHouseDamage % vs.CartonPcsRatio) AS VARCHAR), CAST((InHouseDamage*vs.[Weight]/1000000) AS VARCHAR),
 -- Trade Stock
 CAST(0 AS VARCHAR), CAST(0 AS VARCHAR), CAST(0 AS VARCHAR), 
 -- Shortage Stock
-CAST(FLOOR([ShortageStock]/F.CartonPcsRatio) AS VARCHAR), CAST(([ShortageStock] % F.CartonPcsRatio) AS VARCHAR), CAST((([ShortageStock])*F.[Weight]/1000000) AS VARCHAR),
+CAST(FLOOR([ShortageStock]/vs.CartonPcsRatio) AS VARCHAR), CAST(([ShortageStock] % vs.CartonPcsRatio) AS VARCHAR), CAST((([ShortageStock])*vs.[Weight]/1000000) AS VARCHAR),
 -- CP Sound Stock
-CAST(FLOOR([SoundStock]/F.CartonPcsRatio) AS VARCHAR), CAST(([SoundStock] % F.CartonPcsRatio) AS VARCHAR), CAST((([SoundStock])*F.[Weight]/1000000) AS VARCHAR),
+CAST(FLOOR([SoundStock]/vs.CartonPcsRatio) AS VARCHAR), CAST(([SoundStock] % vs.CartonPcsRatio) AS VARCHAR), CAST((([SoundStock])*vs.[Weight]/1000000) AS VARCHAR),
 -- CP Booked Stock
-CAST(FLOOR([IssuedStock]/F.CartonPcsRatio) AS VARCHAR), CAST(([IssuedStock] % F.CartonPcsRatio) AS VARCHAR), CAST((([IssuedStock])*F.[Weight]/1000000) AS VARCHAR),
+CAST(FLOOR([IssuedStock]/vs.CartonPcsRatio) AS VARCHAR), CAST(([IssuedStock] % vs.CartonPcsRatio) AS VARCHAR), CAST((([IssuedStock])*vs.[Weight]/1000000) AS VARCHAR),
 -- Total Stock
-CAST(FLOOR((Sound+DmgStk+TrnsStock)/F.CartonPcsRatio) AS VARCHAR), CAST(((Sound+DmgStk+TrnsStock) % F.CartonPcsRatio) AS VARCHAR), CAST((Sound+DmgStk+TrnsStock)*F.[Weight]/1000000 AS VARCHAR)
+CAST(FLOOR((Sound+DmgStk+TrnsStock)/vs.CartonPcsRatio) AS VARCHAR), CAST(((Sound+DmgStk+TrnsStock) % vs.CartonPcsRatio) AS VARCHAR), CAST((Sound+DmgStk+TrnsStock)*vs.[Weight]/1000000 AS VARCHAR)
 
 FROM 
 (
-	SELECT M3.Name Region, M2.Name Area, M.Name Territory, sp.Name SPName, sp.TownName Town, 
-	ss.SalesPointID, vs.SKUID,vs.Code SKUCode,vs.Name SKUName,vs.BrandID, vs.BrandName,
-	vs.[Weight], vs.CartonPcsRatio,ss.BatchNo, vphu.Level6Name Flavor, 
-	ISNULL((ss.RegularStock - ss.BookedQty), 0) Available, ISNULL(ss.RegularStock, 0) Sound, 
-	ISNULL(ss.BookedQty, 0) Issue, ISNULL(ss.TransitStock, 0) TrnsStock, 
-	ISNULL(ss.CDamageStock, 0) DmgStk, ISNULL(ss.CPStock, 0) SoundStock, 
-	ISNULL(ss.ShortStock, 0) ShortageStock, ISNULL(ss.InHouseDamage, 0) InHouseDamage,
-	CASE WHEN ISNULL(ss.CPStock, 0) > 0 THEN ISNULL(ss.BookedQty, 0) ELSE 0 END AS IssuedStock,
+	SELECT ss.SalesPointID, ss.SKUID, ss.BatchNo,
+	MAX(ISNULL((ss.RegularStock - ss.BookedQty), 0)) Available, MAX(ISNULL(ss.RegularStock, 0)) Sound, 
+	MAX(ISNULL(ss.BookedQty, 0)) issue, MAX(ISNULL(ss.TransitStock, 0)) TrnsStock, MAX(ISNULL(ss.CDamageStock, 0)) dmgStk, 
+	MAX(ISNULL(ss.CPStock, 0)) [SoundStock], MAX(ISNULL(ss.ShortStock, 0)) ShortageStock,
+	MAX(ISNULL(ss.InHouseDamage, 0)) InHouseDamage,
+	CASE WHEN MAX(ISNULL(ss.CPStock, 0)) > 0 THEN MAX(ISNULL(ss.BookedQty, 0)) ELSE 0 END AS IssuedStock,
 	
 	ISNULL((
 	SELECT SUM(SOI.Quantity)
 	FROM Challans AS CH 
 	INNER JOIN SalesOrders AS SO ON SO.ChallanID = CH.ChallanID
 	INNER JOIN SalesOrderItem AS SOI ON SOI.OrderID = SO.OrderID
-	WHERE SO.SalesPointID = @SalesPoint AND CH.ChallanStatus <> 3
+	WHERE SO.SalesPointID = @SalesPoint AND CH.ChallanStatus IN (1,2) AND SO.OrderSource = 2 AND SOI.SKUID = SS.SKUID
 	), 0) AS B2BBookedStock
 	
 	FROM 
@@ -96,13 +94,12 @@ FROM
 			IN (RegularStock, TransitStock, CDamageStock, CPStock, ShortStock, InHouseDamage) 
 		) AS pivotTable
 	) SS
-	JOIN SalesPoints AS sp ON ss.SalesPointID = sp.SalesPointID
-	JOIN SalesPointMHNodes AS spm ON spm.SalesPointID = sp.SalesPointID
-	JOIN MHNode AS m ON m.NodeID = spm.NodeID
-	INNER JOIN MHNode M2 ON M2.NodeID = M.ParentID
-	INNER JOIN MHNode M3 ON M3.NodeID = M2.ParentID
-	INNER JOIN View_SKUs AS vs ON ss.SKUID = vs.SKUID
-	LEFT JOIN View_ProductHierarchy_UBL AS vphu ON vphu.Level7ID = vs.ProductID 
-	WHERE (ISNULL(ss.RegularStock, 0) + ISNULL(ss.BookedQty, 0) + ISNULL(ss.TransitStock, 0) + ISNULL(ss.CDamageStock, 0) + 
-	ISNULL(ss.CPStock, 0) + ISNULL(ss.ShortStock, 0)) > 0
+	GROUP BY ss.SalesPointID, ss.SKUID, ss.BatchNo
 ) F
+JOIN SalesPoints AS sp ON F.SalesPointID = sp.SalesPointID
+JOIN SalesPointMHNodes AS spm ON spm.SalesPointID = sp.SalesPointID
+JOIN MHNode AS m ON m.NodeID = spm.NodeID
+INNER JOIN MHNode M2 ON M2.NodeID = M.ParentID
+INNER JOIN MHNode M3 ON M3.NodeID = M2.ParentID
+INNER JOIN View_SKUs AS vs ON F.SKUID = vs.SKUID
+LEFT JOIN View_ProductHierarchy_UBL AS vphu ON vphu.Level7ID = vs.ProductID
