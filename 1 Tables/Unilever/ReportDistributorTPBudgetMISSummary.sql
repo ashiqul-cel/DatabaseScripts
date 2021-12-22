@@ -21,8 +21,6 @@ CREATE TABLE [dbo].[ReportDistributorTPBudgetMISSummary](
     [DBID] [int] NOT NULL,
     [DBCode] [varchar](50) NULL,
     [DBName] [varchar](250) NULL,
-    --[TownID]  [int] NOT NULL,
-    --[TownCode] [varchar](50) NULL,
     [TownName] [varchar](250) NULL,
     [ProgramID] [int] NOT NULL,
     [ProgramName] [varchar](250) NULL,
@@ -32,16 +30,19 @@ CREATE TABLE [dbo].[ReportDistributorTPBudgetMISSummary](
     [EndDate] [datetime] NOT NULL,
     [MinCumulativeNo] [money] NULL,
     [MaxCumulativeNo] [money] NULL,
-    --[Achieved] [money] NULL,
-    --[Balance] [money] NULL,
+    CumulativeAchieve MONEY NULL,
+    CumulativeBalance MONEY NULL,
     [TPBudget] [money] NULL,
     [Achievement] [money] NULL,
-    --[AchievementPercent] [money] NULL,
-    [RemainingAmount] [money] NULL,
-    --[RemainingPercent] [money] NULL
+    [RemainingAmount] [money] NULL
 PRIMARY KEY CLUSTERED 
 (
 	[PKID] ASC
 )WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
 ) ON [PRIMARY]
 GO
+
+
+--ALTER TABLE ReportDistributorTPBudgetMISSummary
+--ADD CumulativeAchieve MONEY NULL,
+--CumulativeBalance MONEY NULL
