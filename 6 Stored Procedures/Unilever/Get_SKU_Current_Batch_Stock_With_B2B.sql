@@ -65,7 +65,7 @@ FROM
 	FROM Challans AS CH 
 	INNER JOIN SalesOrders AS SO ON SO.ChallanID = CH.ChallanID
 	INNER JOIN SalesOrderItem AS SOI ON SOI.OrderID = SO.OrderID
-	WHERE SO.SalesPointID = @SalesPointID AND CH.ChallanStatus IN (1,2) AND SO.OrderSource = 2 AND SOI.SKUID = SS.SKUID
+	WHERE SO.SalesPointID = @SalesPointID AND CH.ChallanStatus IN (1,2) AND SO.OrderSource = 3 AND SOI.SKUID = SS.SKUID
 	), 0) AS B2BBookedStock
 	
 	FROM 
