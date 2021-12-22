@@ -6,6 +6,8 @@ ALTER PROCEDURE [dbo].[Get_Pending_B2B_Orders]
 AS
 SET NOCOUNT ON;
 
+--DECLARE @SalesPointID INT = 10
+
 DECLARE @StartDate DATETIME, @EndDate DATETIME;
 SET @StartDate = CAST(DATEADD(DD, -7, GETDATE()) AS DATE);
 SET @EndDate = CAST(GETDATE() AS DATE);
