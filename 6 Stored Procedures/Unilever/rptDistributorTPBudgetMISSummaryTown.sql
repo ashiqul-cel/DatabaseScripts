@@ -7,13 +7,13 @@ AS
 SET NOCOUNT ON;
 
 SELECT 'Region', 'Area', 'Territory', 'Town Name'
-, 'Distributor Code', 'Program Name', 'Program Code', 'Start Date', 'End Date'
+, 'Distributor Code', 'Program Code', 'Program Name', 'Start Date', 'End Date'
 , 'TPBudget/Target', 'Achievement', 'Achievement %', 'Remaining Amount', 'Remaining %'
 
 UNION ALL
 
 SELECT CAST(RegionName AS VARCHAR), CAST(AreaName AS VARCHAR), CAST(TerritoryName AS VARCHAR), CAST(TownName AS VARCHAR)
-, CAST(DBCode AS VARCHAR), CAST(ProgramName AS VARCHAR(200)), CAST(ProgramCode AS VARCHAR), CAST(CAST(StartDate AS DATE) AS VARCHAR), CAST(CAST(EndDate AS DATE) AS VARCHAR)
+, CAST(DBCode AS VARCHAR), CAST(ProgramCode AS VARCHAR), CAST(ProgramName AS VARCHAR(200)), CAST(CAST(StartDate AS DATE) AS VARCHAR), CAST(CAST(EndDate AS DATE) AS VARCHAR)
 , CAST(SUM(TPBudget) AS VARCHAR), CAST(SUM(Achievement) AS VARCHAR),
 
 CAST((
