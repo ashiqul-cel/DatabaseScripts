@@ -25,5 +25,5 @@ INNER JOIN Customers AS CU ON CU.CustomerID = SO.CustomerID
 INNER JOIN SalesOrderItem AS SOI ON SOI.OrderID = SO.OrderID
 INNER JOIN SKUs AS SK ON SK.SKUID = SOI.SKUID
 WHERE SO.SalesPointID = @SalesPointID AND SO.OrderSource = 3
-AND SO.OrderDate BETWEEN @StartDate AND @EndDate
+AND CAST(SO.OrderDate AS DATE) BETWEEN CAST(@StartDate AS DATE) AND CAST(@EndDate AS DATE)
 AND SO.ChallanID IS NULL
