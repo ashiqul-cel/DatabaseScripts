@@ -6,6 +6,8 @@ ALTER PROCEDURE [dbo].[Get_SKU_Current_Batch_Stock_With_B2B]
 AS
 SET NOCOUNT ON;
 
+--DECLARE @SalesPointID INT = 10
+
 SELECT 'Region', 'Area', 'Territory', 'Town', 
 'SalesPoint', 'Flavor', 'Brand', 'SKU Code', 'SKU Name', 'Pack size', 'BatchNo', 
 'Available Stock (CTN)', 'Available Stock (PCS)', 'Available Stock (MT)', 
@@ -62,10 +64,9 @@ FROM
 	
 	ISNULL((
 	SELECT SUM(SOI.Quantity)
-	FROM Challans AS CH 
-	INNER JOIN SalesOrders AS SO ON SO.ChallanID = CH.ChallanID
-	INNER JOIN SalesOrderItem AS SOI ON SOI.OrderID = SO.OrderID
-	WHERE SO.SalesPointID = @SalesPointID AND CH.ChallanStatus IN (1,2) AND SO.OrderSource = 3 AND SOI.SKUID = SS.SKUID
+	FROM SalesOrders AS so
+	INNER JOIN SalesOrderItem AS soi ON soi.OrderID = so.OrderID
+	WHERE SO.SalesPointID = @SalesPointID AND SO.OrderSource = 3 AND SOI.SKUID = SS.SKUID AND so.OrderStatus < 3
 	), 0) AS B2BBookedStock
 	
 	FROM 
