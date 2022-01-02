@@ -6,8 +6,7 @@ ALTER PROCEDURE [dbo].[Save_ReportDailyDistributorWiseSKUSales]
 AS
 
 DECLARE	@OnDate DATETIME, @SalesPoint INT, @Outer_loop INT, @inner_loop INT, @slsVal money, @couVal int
-
-  SET NOCOUNT ON;
+SET NOCOUNT ON;
   
   IF @SalesPointID IS NULL
    BEGIN
@@ -42,17 +41,16 @@ DECLARE	@OnDate DATETIME, @SalesPoint INT, @Outer_loop INT, @inner_loop INT, @sl
 		SET @inner_loop = @@FETCH_STATUS
 		WHILE @inner_loop = 0
 		BEGIN		 
-
 				IF NOT EXISTS(SELECT SalesDate FROM ReportDailyDistributorWiseSKUSales AS dsws WHERE DistributorID = @SalesPoint AND SalesDate = @OnDate)
 				BEGIN
 					INSERT INTO [dbo].[ReportDailyDistributorWiseSKUSales]
 					([SalesDate],[DistributorID],[DistributorCode],[DistributorName],[TerritoryID],[TerritoryCode]
 					,[TerritoryName],[SalesType],[SKUID],[SKUCode],[SKUName],[BrandID],[BrandCode],[BrandName],[ProductID],[ProductCode]
-					,[ProductName],[SKUWeight],[PackSize],[TradePrice],[ListPrice],[VATPrice],[SalesQuantity],[FreeQuantity],[DiscountPerItem])
+					,[ProductName],[SKUWeight],[PackSize],[TradePrice],[ListPrice],[VATPrice],[SalesQuantity],[FreeQuantity],[DiscountPerItem], [CPQuantity])
 			    
 					SELECT si.InvoiceDate,sp.SalesPointID,sp.Code,sp.Name,mh.NodeID, mh.code,mh.name,si.salestype,sii.SKUID,
 					s.code,s.name,s.brandid,b.code,b.name,s.ProductID,ph.code,ph.name,s.weight,s.CartonPcsRatio,s.SKUTradePrice,s.skuinvoiceprice,
-					s.SKUVATPrice,sum(ISNULL(sii.quantity,0)),sum(ISNULL(sii.freeqty, 0)), SUM(ISNULL(sii.DiscountPerItem,0))
+					s.SKUVATPrice,sum(ISNULL(sii.quantity,0)),sum(ISNULL(sii.freeqty, 0)), SUM(ISNULL(sii.DiscountPerItem,0)), SUM(ISNULL(sii.CPQuantity, 0))
 
 					FROM SalesInvoices AS si JOIN SalesInvoiceItem AS sii ON sii.InvoiceID = si.InvoiceID 
 					JOIN SKUs AS s ON s.SKUID = sii.SKUID 
@@ -81,11 +79,11 @@ DECLARE	@OnDate DATETIME, @SalesPoint INT, @Outer_loop INT, @inner_loop INT, @sl
 						INSERT INTO [dbo].[ReportDailyDistributorWiseSKUSales]
 						([SalesDate],[DistributorID],[DistributorCode],[DistributorName],[TerritoryID],[TerritoryCode]
 						,[TerritoryName],[SalesType],[SKUID],[SKUCode],[SKUName],[BrandID],[BrandCode],[BrandName],[ProductID],[ProductCode]
-						,[ProductName],[SKUWeight],[PackSize],[TradePrice],[ListPrice],[VATPrice],[SalesQuantity],[FreeQuantity],[DiscountPerItem])
+						,[ProductName],[SKUWeight],[PackSize],[TradePrice],[ListPrice],[VATPrice],[SalesQuantity],[FreeQuantity],[DiscountPerItem], [CPQuantity])
 			    
 						SELECT si.InvoiceDate,sp.SalesPointID,sp.Code,sp.Name,mh.NodeID, mh.code,mh.name,si.salestype,sii.SKUID,
 						s.code,s.name,s.brandid,b.code,b.name,s.ProductID,ph.code,ph.name,s.weight,s.CartonPcsRatio,s.SKUTradePrice,s.skuinvoiceprice,
-						s.SKUVATPrice,sum(ISNULL(sii.quantity,0)),sum(ISNULL(sii.freeqty, 0)), SUM(ISNULL(sii.DiscountPerItem,0))
+						s.SKUVATPrice,sum(ISNULL(sii.quantity,0)),sum(ISNULL(sii.freeqty, 0)), SUM(ISNULL(sii.DiscountPerItem,0)), SUM(ISNULL(sii.CPQuantity, 0))
 
 						FROM SalesInvoices AS si JOIN SalesInvoiceItem AS sii ON sii.InvoiceID = si.InvoiceID 
 						JOIN SKUs AS s ON s.SKUID = sii.SKUID 
