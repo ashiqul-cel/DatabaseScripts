@@ -42,7 +42,7 @@ MH.Code TerritoryCode, MH.Name TerritoryName, SP.Code DBCode, SP.Name DBName
 , ISNULL((SELECT SUM(TDIS.TargetValue) FROM TargetDistributionItemBySR TDIS WHERE TDIS.SalesPointID = SI.SalesPointID AND TDIS.YearMonth = @YearMonth), 0) MonthlyTarget
 , (SELECT SUM(SO.GrossValue) FROM SalesOrders SO WHERE SO.OrderDate BETWEEN @FromDate AND @ToDate AND SO.SalesPointID = SI.SalesPointID) MTDOrder
 , SUM(SII.Quantity * SII.TradePrice) MTDSales
-, (SUM(SI.GrossValue) / ISNULL((SELECT SUM(TDIS.TargetValue) FROM TargetDistributionItemBySR TDIS WHERE TDIS.SalesPointID = SI.SalesPointID AND TDIS.YearMonth = @YearMonth), 1)) MTDArch
+, (100 * SUM(SI.GrossValue) / ISNULL((SELECT SUM(TDIS.TargetValue) FROM TargetDistributionItemBySR TDIS WHERE TDIS.SalesPointID = SI.SalesPointID AND TDIS.YearMonth = @YearMonth), 1)) MTDArch
 FROM SalesInvoices SI
 INNER JOIN SalesInvoiceItem SII ON SI.InvoiceID = SII.InvoiceID
 INNER JOIN SalesPoints SP ON SI.SalesPointID = SP.SalesPointID
