@@ -13,7 +13,7 @@ SUM(iqr.WPTarget) WPTarget, SUM(iqr.WPAchievement) WPAchievement ,iqr.WPThreshol
 ik.RedLine, ik.EverBilled, ik.[WithPack], ik.[NewProduct],
 ISNULL(iqrc.AchievementUBL,0)AchievementUBL,ISNULL(iqrc.AchievementUCL,0)AchievementUCL
 
-FROM IQReport_11292021002037 iqr
+FROM IQReport iqr
 INNER JOIN Employees emp on iqr.SRID = emp.EmployeeID
 INNER JOIN JCMonth AS j ON j.JCMonthID = iqr.JCMonthID
 LEFT JOIN IQReportCompanyWise iqrc ON iqrc.JCMonthID=iqr.JCMonthID AND iqrc.SRID =iqr.SRID 
