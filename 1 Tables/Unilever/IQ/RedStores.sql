@@ -5,7 +5,6 @@ CREATE TABLE [dbo].[RedStores](
 	PKID int IDENTITY(1,1) NOT NULL,
 	OutletCode varchar(15) NOT NULL,
 	DistributorCode varchar(15) NOT NULL,
-	Threshold money NOT NULL,
 	StartDate datetime NOT NULL,
 	EndDate datetime NOT NULL,
 	CreatedBy int NOT NULL,
