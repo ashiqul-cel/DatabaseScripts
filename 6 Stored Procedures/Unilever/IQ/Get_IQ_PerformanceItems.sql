@@ -1,4 +1,4 @@
-CREATE PROCEDURE [dbo].[Get_IQ_PerformanceItems]
+ALTER PROCEDURE [dbo].[Get_IQ_PerformanceItems]
 @StartDate DATETIME, @EndDate DATETIME
 AS
 SET NOCOUNT ON;
@@ -16,4 +16,4 @@ WHERE
 	OR CAST(@StartDate AS DATE) BETWEEN CAST(AchievementPeriodStartDate AS DATE) AND CAST(AchievementPeriodEndDate AS DATE)
 	OR CAST(@EndDate AS DATE) BETWEEN CAST(AchievementPeriodStartDate AS DATE) AND CAST(AchievementPeriodEndDate AS DATE)
 )
-AND KPITypeID IN (29, 30, 31, 32)
+AND KPITypeID IN (26, 30, 31, 32)
