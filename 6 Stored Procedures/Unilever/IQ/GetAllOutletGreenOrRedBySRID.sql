@@ -6,13 +6,15 @@ ALTER PROCEDURE [dbo].[GetAllOutletGreenOrRedBySRID]
 AS
 SET NOCOUNT ON;
 
-select c.CustomerID OutletID, s.SectionID,
+--DECLARE @SRID INT = 49616
+
+SELECT c.CustomerID OutletID, s.SectionID,
 (
-	case
-	when rsh.AchievementLine >= rsh.TargetLine then 1
-	else 0 end
+	CASE
+	WHEN rsh.AchievementLine >= rsh.TargetLine THEN 1
+	ELSE 0 END
 ) IsGreen
-from Sections s
-inner join Customers c on s.RouteID = c.RouteID
-inner join RedStoresHistory rsh on c.CustomerID = rsh.OutletID
-where s.SRID = @SRID
+FROM Sections s
+INNER JOIN Customers c ON s.RouteID = c.RouteID
+INNER JOIN RedStoresHistory rsh ON c.CustomerID = rsh.OutletID
+WHERE s.SRID = @SRID AND rsh.[Year] = YEAR(GETDATE()) AND rsh.[Month] = MONTH(GETDATE())
