@@ -1,0 +1,26 @@
+
+CREATE TABLE [dbo].[BadgeDefinition](
+	BadgeDefinitionID INT IDENTITY(1,1) NOT NULL,
+	BadgeSequence INT NOT NULL,
+	BadgeDescEnglish VARCHAR(250) NOT NULL,
+	BadgeDescBangla NVARCHAR(300) NOT NULL,
+	BadgeImageLink VARCHAR(MAX) NULL,
+	KPITypeIDs VARCHAR(250) NOT NULL,
+	DFFKPITypeID INT NOT NULL,
+	DFFKPITypeName VARCHAR(250) NOT NULL, 
+	BaseID INT NULL,
+	SuccessiveInAYear INT NOT NULL,
+	MaxAchievedInYear INT NOT NULL,
+	Score INT NOT NULL,
+	[Status] INT NOT NULL,
+	CreatedBy INT NOT NULL,
+	CreatedDate DATETIME NOT NULL,
+	CONSTRAINT [PK_BadgeDefinition] PRIMARY KEY CLUSTERED 
+	(
+		BadgeDefinitionID ASC
+	)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
+GO
+
+ALTER TABLE [dbo].[BadgeDefinition] ADD  CONSTRAINT [DF_BadgeDefinition_CreatedDate]  DEFAULT (getdate()) FOR [CreatedDate]
+GO
