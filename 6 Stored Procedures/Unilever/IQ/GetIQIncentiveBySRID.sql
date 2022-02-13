@@ -6,7 +6,14 @@ CREATE PROCEDURE [dbo].[GetIQIncentiveBySRID]
 AS
 SET NOCOUNT ON;
 
---DECLARE @SRID INT = 36086
+--DECLARE @SRID INT = 62431
+
+DECLARE @GradeID INT = 0
+SET @GradeID =
+(
+	SELECT sp.DistributorGradingID FROM SalesPoints AS sp
+	WHERE sp.SalesPointID = (SELECT e.SalesPointID FROM Employees AS e WHERE e.EmployeeID = @SRID)
+)
 
 DECLARE @DesignationID INT = 0
 SET @DesignationID =
@@ -32,7 +39,7 @@ SET @TotalTaka =
 	SELECT TOP 1 pis.IncentiveAmount
 	FROM PerformanceItem pfi
 	INNER JOIN PerformanceItemSlab AS pis ON pis.PerformanceItemID = pfi.PerformanceItemID
-	WHERE pfi.KPITypeID = 26 AND pfi.Designation = @DesignationID AND
+	WHERE pfi.KPITypeID = 26 AND pfi.Designation = @DesignationID AND pis.GradeID = @GradeID AND
 	YEAR(AchievementPeriodStartDate) = @Year AND MONTH(AchievementPeriodStartDate) = @Month
 	ORDER BY pfi.PerformanceItemID DESC, pis.GrowthThreshold DESC, pis.IncentiveAmount DESC
 )
