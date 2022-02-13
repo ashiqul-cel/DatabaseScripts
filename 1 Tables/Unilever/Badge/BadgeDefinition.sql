@@ -12,6 +12,7 @@ CREATE TABLE [dbo].[BadgeDefinition](
 	SuccessiveInAYear INT NOT NULL,
 	MaxAchievedInYear INT NOT NULL,
 	Score INT NOT NULL,
+	ColorCode VARCHAR(10) NOT NULL,
 	[Status] INT NOT NULL,
 	CreatedBy INT NOT NULL,
 	CreatedDate DATETIME NOT NULL,
