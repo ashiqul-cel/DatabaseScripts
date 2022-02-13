@@ -6,7 +6,7 @@ ALTER PROCEDURE [dbo].[GetAllOutletGreenOrRedBySRID]
 AS
 SET NOCOUNT ON;
 
---DECLARE @SRID INT = 49616
+--DECLARE @SRID INT = 59503
 
 SELECT c.CustomerID OutletID, s.SectionID,
 (
@@ -17,4 +17,4 @@ SELECT c.CustomerID OutletID, s.SectionID,
 FROM Sections s
 INNER JOIN Customers c ON s.RouteID = c.RouteID
 INNER JOIN RedStoresHistory rsh ON c.CustomerID = rsh.OutletID
-WHERE s.SRID = @SRID AND rsh.[Year] = YEAR(GETDATE()) AND rsh.[Month] = MONTH(GETDATE())
+WHERE s.SRID = @SRID AND rsh.SRID = @SRID AND rsh.[Year] = YEAR(GETDATE()) AND rsh.[Month] = MONTH(GETDATE())
