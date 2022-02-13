@@ -9,6 +9,7 @@ CREATE TABLE [dbo].[RedStoresHistory](
 	SPCode varchar(15) NOT NULL,
 	OutletID int NOT NULL,
 	OutletCode varchar(15) NOT NULL,
+	SRID INT NOT NULL,
 	TargetLine int NOT NULL,
 	AchievementLine int NOT NULL,
 	CONSTRAINT [RedStoresHistoryID] PRIMARY KEY CLUSTERED
