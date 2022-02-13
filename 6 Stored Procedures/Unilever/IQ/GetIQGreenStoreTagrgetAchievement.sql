@@ -8,8 +8,6 @@ SET NOCOUNT ON;
 
 --declare @SalesPointID INT = 62, @Year INT = 2022, @Month INT = 1
 
-select s.SRID, s.SalesPointID, rsh.TargetLine, rsh.AchievementLine
-from Sections s
-inner join Customers c on s.RouteID = c.RouteID
-inner join RedStoresHistory rsh on c.CustomerID = rsh.OutletID
-where rsh.Year = @Year and rsh.Month = @Month and s.SalesPointID = @SalesPointID and rsh.SalesPointID = @SalesPointID
+select rsh.SRID, rsh.SalesPointID, rsh.TargetLine, rsh.AchievementLine
+from RedStoresHistory rsh
+where rsh.Year = @Year and rsh.Month = @Month and rsh.SalesPointID = @SalesPointID
