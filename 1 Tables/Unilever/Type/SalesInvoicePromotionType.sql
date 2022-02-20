@@ -1,0 +1,18 @@
+
+CREATE TYPE [dbo].[SalesInvoicePromotionType] AS TABLE(
+	OutletSalesID INT NOT NULL,
+	TPID INT NOT NULL,
+	SlabID INT NOT NULL,
+	BonusType INT NOT NULL,
+	FreeSKUID INT NOT NULL,
+	GiftItemID INT NOT NULL,
+	BonusValue MONEY NULL,
+	OfferedQty MONEY NULL,
+	Threshold MONEY NULL,
+	OutletId INT NOT NULL,
+	DistributorID INT NOT NULL,
+	SectionId INT NOT NULL,
+	SalesDate DATETIME NOT NULL,
+	CashmemoNo VARCHAR(50) NOT NULL,
+	SalesType SMALLINT NOT NULL
+);
