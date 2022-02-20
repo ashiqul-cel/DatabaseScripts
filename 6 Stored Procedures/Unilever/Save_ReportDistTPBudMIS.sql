@@ -70,11 +70,11 @@ DECLARE	@OnDate DATETIME, @SalesPoint INT, @Outer_loop INT, @inner_loop INT, @TP
 					INNER JOIN mhnode mh on smh.nodeid = mh.nodeid
 					INNER JOIN mhnode mh1 on mh1.nodeid = mh.parentid
 					INNER JOIN mhnode mh2 on mh2.nodeid = mh1.parentid
-					INNER JOIN TPCumulativeOutlet tpc on tpc.tpcode = sp.code
+					INNER JOIN TPCumulativeOutlet tpc on tpc.SalesPointID = d.SalesPointID AND tpc.tpcode = sp.code
 					LEFT JOIN Customers AS c ON tpc.OutletCode = c.Code
 					LEFT JOIN
 					(
-						SELECT sp.PromotionID, si.CustomerID, CAST(SUM(ISNULL(sip.OfferedQty, 0)) / NULLIF(MAX(s.Threshold), 0) AS DECIMAL(18, 0)) CumulativeAchieve
+						SELECT sp.PromotionID, si.CustomerID, CAST(MAX(ISNULL(sip.OfferedQty, 0)) / NULLIF(MAX(s.Threshold), 0) AS DECIMAL(18, 0)) CumulativeAchieve
 						FROM SalesPromotions AS sp
 						INNER JOIN SalesInvoicePromotion AS sip ON sp.PromotionID = sip.SalesPromotionID
 						INNER JOIN SalesInvoices AS si ON sip.SalesInvoiceID = si.InvoiceID
