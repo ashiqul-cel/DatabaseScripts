@@ -18,8 +18,3 @@ FROM        dbo.Customers A
 			INNER JOIN dbo.Thana T ON T.ThanaID=A.ThanaID
 			INNER JOIN dbo.District D ON D.DistrictID=T.DistrictID
 			INNER JOIN dbo.Division Div ON Div.DivisionID=D.DivisionID
-
-CREATE UNIQUE CLUSTERED INDEX [IX_View_Customers_Index] ON [dbo].[View_Customers_Index]
-(
-	[CustomerID] ASC
-)
