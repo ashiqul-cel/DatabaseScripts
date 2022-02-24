@@ -44,4 +44,37 @@ SET @TotalTaka =
 	ORDER BY pfi.PerformanceItemID DESC, pis.GrowthThreshold DESC, pis.IncentiveAmount DESC
 )
 
-SELECT ISNULL(@TotalTaka,0) TotalTaka
+DECLARE @E2ETotalTaka MONEY = 0
+SET @E2ETotalTaka =
+(
+	SELECT TOP 1 pis.IncentiveAmount
+	FROM PerformanceItem pfi
+	INNER JOIN PerformanceItemSlab AS pis ON pis.PerformanceItemID = pfi.PerformanceItemID
+	WHERE pfi.KPITypeID = 30 AND pfi.Designation = @DesignationID AND pis.GradeID = @GradeID AND
+	YEAR(AchievementPeriodStartDate) = @Year AND MONTH(AchievementPeriodStartDate) = @Month
+	ORDER BY pfi.PerformanceItemID DESC, pis.GrowthThreshold DESC, pis.IncentiveAmount DESC
+)
+
+DECLARE @E2STotalTaka MONEY = 0
+SET @E2STotalTaka =
+(
+	SELECT TOP 1 pis.IncentiveAmount
+	FROM PerformanceItem pfi
+	INNER JOIN PerformanceItemSlab AS pis ON pis.PerformanceItemID = pfi.PerformanceItemID
+	WHERE pfi.KPITypeID = 31 AND pfi.Designation = @DesignationID AND pis.GradeID = @GradeID AND
+	YEAR(AchievementPeriodStartDate) = @Year AND MONTH(AchievementPeriodStartDate) = @Month
+	ORDER BY pfi.PerformanceItemID DESC, pis.GrowthThreshold DESC, pis.IncentiveAmount DESC
+)
+
+DECLARE @GreenStoreTotalTaka MONEY = 0
+SET @GreenStoreTotalTaka =
+(
+	SELECT TOP 1 pis.IncentiveAmount
+	FROM PerformanceItem pfi
+	INNER JOIN PerformanceItemSlab AS pis ON pis.PerformanceItemID = pfi.PerformanceItemID
+	WHERE pfi.KPITypeID = 32 AND pfi.Designation = @DesignationID AND pis.GradeID = @GradeID AND
+	YEAR(AchievementPeriodStartDate) = @Year AND MONTH(AchievementPeriodStartDate) = @Month
+	ORDER BY pfi.PerformanceItemID DESC, pis.GrowthThreshold DESC, pis.IncentiveAmount DESC
+)
+
+SELECT ISNULL(@TotalTaka,0) TotalTaka, ISNULL(@E2ETotalTaka, 0) E2ETotalTaka, ISNULL(@E2STotalTaka, 0) E2STotalTaka,  ISNULL(@GreenStoreTotalTaka, 0) GreenStoreTotalTaka
