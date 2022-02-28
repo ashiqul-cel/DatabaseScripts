@@ -1,0 +1,8 @@
+USE [UnileverOS]
+GO
+
+CREATE PROCEDURE [dbo].[getIQKPITypes]
+AS
+SET NOCOUNT ON;
+
+SELECT * FROM DFFKPIType WHERE IsActive = 16 AND DFFKPITypeID IN (26, 30, 31, 32) ORDER BY PositionValue
