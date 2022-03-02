@@ -6,7 +6,7 @@ ALTER PROCEDURE [dbo].[GetIQIncentiveBySRID]
 AS
 SET NOCOUNT ON;
 
---DECLARE @SRID INT = 62431
+--DECLARE @SRID INT = 49616
 
 DECLARE @TmpIQIncentiveTable TABLE (
 	Id INT NOT NULL,
@@ -44,7 +44,16 @@ DECLARE @Year INT = YEAR(GETDATE()), @Month INT = MONTH(GETDATE())
 DECLARE @Id INT=NULL, @KpiName VARCHAR(200)=NULL, @TotalTaka MONEY=NULL, @IsDependentKPI INT=NULL, @Percentage MONEY=NULL
 
 -- Total Assortment
-SELECT TOP 1 @Id=1, @KpiName='Total Assortment', @TotalTaka=pis.IncentiveAmount, @IsDependentKPI=pfi.DependencyKPIId, @Percentage=pfi.DependencyKPIPercentage
+SELECT TOP 1 @Id=1, @KpiName='Total Assortment', @TotalTaka=pis.IncentiveAmount,
+@IsDependentKPI=
+(
+	CASE WHEN pfi.DependencyKPIId=26 THEN 1
+	WHEN pfi.DependencyKPIId=30 THEN 2
+	WHEN pfi.DependencyKPIId=31 THEN 3
+	WHEN pfi.DependencyKPIId=32 THEN 4
+	ELSE 0 END
+),
+@Percentage=pfi.DependencyKPIPercentage
 FROM PerformanceItem pfi
 INNER JOIN PerformanceItemSlab AS pis ON pis.PerformanceItemID = pfi.PerformanceItemID
 WHERE pfi.KPITypeID = 26 AND pfi.Designation = @DesignationID AND pis.GradeID = @GradeID AND
@@ -58,7 +67,16 @@ VALUES(ISNULL(@Id,1), ISNULL(@KpiName,'Total Assortment'), ISNULL(@TotalTaka,0),
 SET @Id = NULL SET @KpiName = NULL SET @TotalTaka = NULL SET @IsDependentKPI = NULL SET @Percentage = NULL
 
 -- E2E
-SELECT TOP 1 @Id=2, @KpiName='E2E', @TotalTaka=pis.IncentiveAmount, @IsDependentKPI=pfi.DependencyKPIId, @Percentage=pfi.DependencyKPIPercentage
+SELECT TOP 1 @Id=2, @KpiName='E2E', @TotalTaka=pis.IncentiveAmount,
+@IsDependentKPI=
+(
+	CASE WHEN pfi.DependencyKPIId=26 THEN 1
+	WHEN pfi.DependencyKPIId=30 THEN 2
+	WHEN pfi.DependencyKPIId=31 THEN 3
+	WHEN pfi.DependencyKPIId=32 THEN 4
+	ELSE 0 END
+),
+@Percentage=pfi.DependencyKPIPercentage
 FROM PerformanceItem pfi
 INNER JOIN PerformanceItemSlab AS pis ON pis.PerformanceItemID = pfi.PerformanceItemID
 WHERE pfi.KPITypeID = 30 AND pfi.Designation = @DesignationID AND pis.GradeID = @GradeID AND
@@ -71,8 +89,17 @@ VALUES(ISNULL(@Id,2), ISNULL(@KpiName,'E2E'), ISNULL(@TotalTaka,0), ISNULL(@IsDe
 
 SET @Id = NULL SET @KpiName = NULL SET @TotalTaka = NULL SET @IsDependentKPI = NULL SET @Percentage = NULL
 
--- E2E
-SELECT TOP 1 @Id=3, @KpiName='E2S', @TotalTaka=pis.IncentiveAmount, @IsDependentKPI=pfi.DependencyKPIId, @Percentage=pfi.DependencyKPIPercentage
+-- E2S
+SELECT TOP 1 @Id=3, @KpiName='E2S', @TotalTaka=pis.IncentiveAmount,
+@IsDependentKPI=
+(
+	CASE WHEN pfi.DependencyKPIId=26 THEN 1
+	WHEN pfi.DependencyKPIId=30 THEN 2
+	WHEN pfi.DependencyKPIId=31 THEN 3
+	WHEN pfi.DependencyKPIId=32 THEN 4
+	ELSE 0 END
+),
+@Percentage=pfi.DependencyKPIPercentage
 FROM PerformanceItem pfi
 LEFT JOIN PerformanceItemSlab AS pis ON pis.PerformanceItemID = pfi.PerformanceItemID
 WHERE pfi.KPITypeID = 31 AND pfi.Designation = @DesignationID AND pis.GradeID = @GradeID AND
@@ -86,7 +113,16 @@ VALUES(ISNULL(@Id,3), ISNULL(@KpiName,'E2S'), ISNULL(@TotalTaka,0), ISNULL(@IsDe
 SET @Id = NULL SET @KpiName = NULL SET @TotalTaka = NULL SET @IsDependentKPI = NULL SET @Percentage = NULL
 
 -- Green Store
-SELECT TOP 1 @Id=4, @KpiName='Green Store', @TotalTaka=pis.IncentiveAmount, @IsDependentKPI=pfi.DependencyKPIId, @Percentage=pfi.DependencyKPIPercentage
+SELECT TOP 1 @Id=4, @KpiName='Green Store', @TotalTaka=pis.IncentiveAmount,
+@IsDependentKPI=
+(
+	CASE WHEN pfi.DependencyKPIId=26 THEN 1
+	WHEN pfi.DependencyKPIId=30 THEN 2
+	WHEN pfi.DependencyKPIId=31 THEN 3
+	WHEN pfi.DependencyKPIId=32 THEN 4
+	ELSE 0 END
+),
+@Percentage=pfi.DependencyKPIPercentage
 FROM PerformanceItem pfi
 INNER JOIN PerformanceItemSlab AS pis ON pis.PerformanceItemID = pfi.PerformanceItemID
 WHERE pfi.KPITypeID = 32 AND pfi.Designation = @DesignationID AND pis.GradeID = @GradeID AND
