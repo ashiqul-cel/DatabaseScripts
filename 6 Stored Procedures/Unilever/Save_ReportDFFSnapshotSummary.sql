@@ -1,15 +1,6 @@
 USE [UnileverOS]
 GO
 
-/****** Object:  StoredProcedure [dbo].[Save_ReportDFFSnapshotSummary]    Script Date: 10/13/2021 2:36:42 PM ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
-
-
 ALTER PROCEDURE [dbo].[Save_ReportDFFSnapshotSummary]
   @SystemID int,  @SalesPointID INT= NULL, @ProcessDate DATETIME
 AS 

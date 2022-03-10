@@ -8,7 +8,7 @@ AS
 DECLARE	@StartDate DATETIME, @EndDate DATETIME, @SalesPoint INT, @Outer_loop INT
 
 DECLARE @tempTable TABLE (
-	[Month] int NOT NULL,
+  [Month] int NOT NULL,
   [Year] int NOT NULL,
   RegionID int NOT NULL,
   RegionCode varchar(50) NULL,
@@ -36,7 +36,7 @@ DECLARE @tempTable TABLE (
   TargetWeight money NULL,
   TargetValue money NULL,
   AchievedQty money NULL,
-	AchievedWeight money NULL,
+  AchievedWeight money NULL,
   AchievedValue money NULL
 );
 
