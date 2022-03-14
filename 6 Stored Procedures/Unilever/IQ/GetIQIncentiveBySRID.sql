@@ -6,22 +6,23 @@ ALTER PROCEDURE [dbo].[GetIQIncentiveBySRID]
 AS
 SET NOCOUNT ON;
 
---DECLARE @SRID INT = 49616
+-- DECLARE @SRID INT = 62431
 
 DECLARE @TmpIQIncentiveTable TABLE (
-	Id INT NOT NULL,
-	Name VARCHAR(200) NOT NULL,
+    Id INT NOT NULL,
+    Name VARCHAR(200) NOT NULL,
     TotalTaka MONEY NOT NULL,
     IsDependentKPI INT NOT NULL,                                
     Percentage MONEY NOT NULL
 );
 
+DECLARE @SalesPointID INT = 0
+SET @SalesPointID = (SELECT e.SalesPointID FROM Employees AS e 
+                     WHERE e.EmployeeID = @SRID)
+
 DECLARE @GradeID INT = 0
-SET @GradeID =
-(
-	SELECT sp.DistributorGradingID FROM SalesPoints AS sp
-	WHERE sp.SalesPointID = (SELECT e.SalesPointID FROM Employees AS e WHERE e.EmployeeID = @SRID)
-)
+SET @GradeID = (SELECT sp.DistributorGradingID FROM SalesPoints AS sp 
+                WHERE sp.SalesPointID = @SalesPointID)
 
 DECLARE @DesignationID INT = 0
 SET @DesignationID =
@@ -41,7 +42,7 @@ SET @DesignationID =
 
 DECLARE @Year INT = YEAR(GETDATE()), @Month INT = MONTH(GETDATE())
 
-DECLARE @Id INT=NULL, @KpiName VARCHAR(200)=NULL, @TotalTaka MONEY=NULL, @IsDependentKPI INT=NULL, @Percentage MONEY=NULL
+DECLARE @Id INT = NULL, @KpiName VARCHAR(200) = NULL, @TotalTaka MONEY = NULL, @IsDependentKPI INT = NULL, @Percentage MONEY = NULL
 
 -- Total Assortment
 SELECT TOP 1 @Id=1, @KpiName='Total Assortment', @TotalTaka=pis.IncentiveAmount,
@@ -54,14 +55,15 @@ SELECT TOP 1 @Id=1, @KpiName='Total Assortment', @TotalTaka=pis.IncentiveAmount,
 	ELSE 0 END
 ),
 @Percentage=pfi.DependencyKPIPercentage
-FROM PerformanceItem pfi
+FROM PerformanceItem AS pfi
 INNER JOIN PerformanceItemSlab AS pis ON pis.PerformanceItemID = pfi.PerformanceItemID
-WHERE pfi.KPITypeID = 26 AND pfi.Designation = @DesignationID AND pis.GradeID = @GradeID AND
-YEAR(AchievementPeriodStartDate) = @Year AND MONTH(AchievementPeriodStartDate) = @Month
+INNER JOIN PerformanceItemDistributor AS pid ON pid.PerformanceItemID = pis.PerformanceItemID
+WHERE pfi.KPITypeID = 26 AND pfi.Designation = @DesignationID 
+AND pis.GradeID = @GradeID AND pid.SalesPointID = @SalesPointID
+AND YEAR(AchievementPeriodStartDate) = @Year AND MONTH(AchievementPeriodStartDate) = @Month
 ORDER BY pfi.PerformanceItemID DESC, pis.GrowthThreshold DESC, pis.IncentiveAmount DESC
 
-INSERT INTO @TmpIQIncentiveTable
-(Id, Name, TotalTaka, IsDependentKPI, Percentage)
+INSERT INTO @TmpIQIncentiveTable (Id, Name, TotalTaka, IsDependentKPI, Percentage)
 VALUES(ISNULL(@Id,1), ISNULL(@KpiName,'Total Assortment'), ISNULL(@TotalTaka,0), ISNULL(@IsDependentKPI,0), ISNULL(@Percentage,0))
 
 SET @Id = NULL SET @KpiName = NULL SET @TotalTaka = NULL SET @IsDependentKPI = NULL SET @Percentage = NULL
@@ -77,14 +79,15 @@ SELECT TOP 1 @Id=2, @KpiName='E2E', @TotalTaka=pis.IncentiveAmount,
 	ELSE 0 END
 ),
 @Percentage=pfi.DependencyKPIPercentage
-FROM PerformanceItem pfi
+FROM PerformanceItem AS pfi
 INNER JOIN PerformanceItemSlab AS pis ON pis.PerformanceItemID = pfi.PerformanceItemID
-WHERE pfi.KPITypeID = 30 AND pfi.Designation = @DesignationID AND pis.GradeID = @GradeID AND
-YEAR(AchievementPeriodStartDate) = @Year AND MONTH(AchievementPeriodStartDate) = @Month
+INNER JOIN PerformanceItemDistributor AS pid ON pid.PerformanceItemID = pis.PerformanceItemID
+WHERE pfi.KPITypeID = 30 AND pfi.Designation = @DesignationID 
+AND pis.GradeID = @GradeID AND pid.SalesPointID = @SalesPointID
+AND YEAR(AchievementPeriodStartDate) = @Year AND MONTH(AchievementPeriodStartDate) = @Month
 ORDER BY pfi.PerformanceItemID DESC, pis.GrowthThreshold DESC, pis.IncentiveAmount DESC
 
-INSERT INTO @TmpIQIncentiveTable
-(Id, Name, TotalTaka, IsDependentKPI, Percentage)
+INSERT INTO @TmpIQIncentiveTable (Id, Name, TotalTaka, IsDependentKPI, Percentage)
 VALUES(ISNULL(@Id,2), ISNULL(@KpiName,'E2E'), ISNULL(@TotalTaka,0), ISNULL(@IsDependentKPI,0), ISNULL(@Percentage,0))
 
 SET @Id = NULL SET @KpiName = NULL SET @TotalTaka = NULL SET @IsDependentKPI = NULL SET @Percentage = NULL
@@ -100,14 +103,15 @@ SELECT TOP 1 @Id=3, @KpiName='E2S', @TotalTaka=pis.IncentiveAmount,
 	ELSE 0 END
 ),
 @Percentage=pfi.DependencyKPIPercentage
-FROM PerformanceItem pfi
+FROM PerformanceItem AS pfi
 LEFT JOIN PerformanceItemSlab AS pis ON pis.PerformanceItemID = pfi.PerformanceItemID
-WHERE pfi.KPITypeID = 31 AND pfi.Designation = @DesignationID AND pis.GradeID = @GradeID AND
-YEAR(AchievementPeriodStartDate) = @Year AND MONTH(AchievementPeriodStartDate) = @Month
+INNER JOIN PerformanceItemDistributor AS pid ON pid.PerformanceItemID = pis.PerformanceItemID
+WHERE pfi.KPITypeID = 31 AND pfi.Designation = @DesignationID 
+AND pis.GradeID = @GradeID AND pid.SalesPointID = @SalesPointID
+AND YEAR(AchievementPeriodStartDate) = @Year AND MONTH(AchievementPeriodStartDate) = @Month
 ORDER BY pfi.PerformanceItemID DESC, pis.GrowthThreshold DESC, pis.IncentiveAmount DESC
 
-INSERT INTO @TmpIQIncentiveTable
-(Id, Name, TotalTaka, IsDependentKPI, Percentage)
+INSERT INTO @TmpIQIncentiveTable (Id, Name, TotalTaka, IsDependentKPI, Percentage)
 VALUES(ISNULL(@Id,3), ISNULL(@KpiName,'E2S'), ISNULL(@TotalTaka,0), ISNULL(@IsDependentKPI,0), ISNULL(@Percentage,0))
 
 SET @Id = NULL SET @KpiName = NULL SET @TotalTaka = NULL SET @IsDependentKPI = NULL SET @Percentage = NULL
@@ -123,14 +127,15 @@ SELECT TOP 1 @Id=4, @KpiName='Green Store', @TotalTaka=pis.IncentiveAmount,
 	ELSE 0 END
 ),
 @Percentage=pfi.DependencyKPIPercentage
-FROM PerformanceItem pfi
+FROM PerformanceItem AS pfi
 INNER JOIN PerformanceItemSlab AS pis ON pis.PerformanceItemID = pfi.PerformanceItemID
-WHERE pfi.KPITypeID = 32 AND pfi.Designation = @DesignationID AND pis.GradeID = @GradeID AND
-YEAR(AchievementPeriodStartDate) = @Year AND MONTH(AchievementPeriodStartDate) = @Month
+INNER JOIN PerformanceItemDistributor AS pid ON pid.PerformanceItemID = pis.PerformanceItemID
+WHERE pfi.KPITypeID = 32 AND pfi.Designation = @DesignationID 
+AND pis.GradeID = @GradeID AND pid.SalesPointID = @SalesPointID
+AND YEAR(AchievementPeriodStartDate) = @Year AND MONTH(AchievementPeriodStartDate) = @Month
 ORDER BY pfi.PerformanceItemID DESC, pis.GrowthThreshold DESC, pis.IncentiveAmount DESC
 
-INSERT INTO @TmpIQIncentiveTable
-(Id, Name, TotalTaka, IsDependentKPI, Percentage)
+INSERT INTO @TmpIQIncentiveTable (Id, Name, TotalTaka, IsDependentKPI, Percentage)
 VALUES(ISNULL(@Id,4), ISNULL(@KpiName,'Green Store'), ISNULL(@TotalTaka,0), ISNULL(@IsDependentKPI,0), ISNULL(@Percentage,0))
 
 SET @Id = NULL SET @KpiName = NULL SET @TotalTaka = NULL SET @IsDependentKPI = NULL SET @Percentage = NULL
