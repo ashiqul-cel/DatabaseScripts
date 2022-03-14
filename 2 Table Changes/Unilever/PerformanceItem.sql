@@ -7,3 +7,6 @@ ADD PreviousMonthAchieve INT NULL,
 ALTER TABLE PerformanceItem
 ADD DependencyKPIId INT NULL,
 	DependencyKPIPercentage MONEY NULL
+
+ALTER TABLE PerformanceItem
+ADD IqEligiblePercent MONEY NULL
