@@ -1,0 +1,2 @@
+ALTER TABLE IQReport
+ADD IsMarkedRedStore INT NULL
