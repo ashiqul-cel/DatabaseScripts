@@ -1,12 +1,12 @@
 USE [UnileverOS]
 GO
 
-CREATE PROCEDURE [dbo].[IQOutletViewReport]
-@SalesPointID INT, @Month INT, @Year INT
-AS
-SET NOCOUNT ON;
+--ALTER PROCEDURE [dbo].[IQOutletViewReport]
+--@SalesPointID INT, @Month INT, @Year INT
+--AS
+--SET NOCOUNT ON;
 
---DECLARE @SalesPointID INT = 14, @Month INT = 110, @Year INT = 10
+DECLARE @SalesPointID INT = 14, @Month INT = 109, @Year INT = 10
 
 SELECT Y.*, (Y.[EB Target] + Y.[Redline Target] + Y.[WP Target] + Y.[NPD Target]) [Total Line Target],
 (Y.[EB Actual] + Y.[Redline Actual] + Y.[WP Actual] + Y.[NPD Actual]) [Total Line Achievement],
@@ -67,7 +67,7 @@ FROM
 		SUM(i.WPTarget) WPTarget, SUM(i.WPAchievement) WPActual,
 		SUM(i.WPThreshold)/COUNT(c.CustomerID) WPThreshold,
 		SUM(ISNULL(i.NetSales, 0)) NetSales, SUM(ISNULL(i.TotalNetSales, 0)) TotalNetSales, 
-		MIN(ISNULL(i.IsMarkedRedStore, 0)) IsMarkedRedStore
+		MAX(ISNULL(i.IsMarkedRedStore, 0)) IsMarkedRedStore
 		FROM IQReport AS i
 		INNER JOIN Customers AS c ON c.CustomerID=i.OutletID
 		INNER JOIN SalesPoints AS sp ON c.SalesPointID = sp.SalesPointID
