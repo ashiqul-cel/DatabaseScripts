@@ -1,17 +1,15 @@
 USE [UnileverOS]
 GO
 
-CREATE PROCEDURE [dbo].[ProcessIQReportData]
+ALTER PROCEDURE [dbo].[ProcessIQReportData]
 @Month INT, @Year INT
 AS
 SET NOCOUNT ON;
 
---DECLARE @Month INT, @Year INT
-
 DECLARE @date DATETIME, @startDate DATETIME = NULL, @endDate DATETIME = NULL, 
 @onDate DATETIME = NULL, @JCYearID INT, @JCMonthID INT;
 
-SET @onDate = GETDATE();--'1 Feb 2022'
+SET @onDate = GETDATE();
 SET @Month = (SELECT JCMonthCode FROM JCMonth WHERE JCMonthID IN (SELECT dbo.GetJCMonthByIQStartEndDate(@onDate)));
 SET @endDate = (SELECT JCYearEndDate FROM JCYear WHERE JCYearID IN (SELECT dbo.GetJCYear(@onDate)));
 SET @Year = YEAR(@endDate);
@@ -128,4 +126,5 @@ LEFT JOIN
 	INNER JOIN Customers c ON rs.OutletCode = c.Code and sp.SalesPointID = c.SalesPointID
 	WHERE CAST(@onDate AS DATE) BETWEEN rs.StartDate AND rs.EndDate
 ) RS ON Z.SalesPointID = RS.SalesPointID AND Z.OutletID = RS.CustomerID
-GROUP BY Z.[Year], Z.[Month], Z.[SalesPointID], Z.[OutletID], Z.[SRID],Z.[JCYearID],Z.[JCMonthID], RS.CustomerID;
+
+GROUP BY Z.Year, Z.Month, Z.SalesPointID, Z.OutletID, Z.SRID, Z.JCYearID, Z.JCMonthID, RS.CustomerID;
