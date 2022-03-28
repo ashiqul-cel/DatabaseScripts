@@ -1,12 +1,12 @@
 USE [UnileverOS]
 GO
 
---ALTER PROCEDURE [dbo].[IQOutletViewReport]
---@SalesPointID INT, @Month INT, @Year INT
---AS
---SET NOCOUNT ON;
+CREATE PROCEDURE [dbo].[GetIQOutletViewReport]
+@SalesPointID INT, @JCMonth INT, @JCYear INT
+AS
+SET NOCOUNT ON;
 
-DECLARE @SalesPointID INT = 14, @Month INT = 109, @Year INT = 10
+--DECLARE @SalesPointID INT = 14, @JCMonth INT = 109, @JCYear INT = 10
 
 SELECT Y.*, (Y.[EB Target] + Y.[Redline Target] + Y.[WP Target] + Y.[NPD Target]) [Total Line Target],
 (Y.[EB Actual] + Y.[Redline Actual] + Y.[WP Actual] + Y.[NPD Actual]) [Total Line Achievement],
@@ -72,7 +72,7 @@ FROM
 		INNER JOIN Customers AS c ON c.CustomerID=i.OutletID
 		INNER JOIN SalesPoints AS sp ON c.SalesPointID = sp.SalesPointID
 
-		WHERE i.JCMonthID = @Month AND i.JCYearID = @Year AND sp.SalesPointID = @SalesPointID
+		WHERE i.JCMonthID = @JCMonth AND i.JCYearID = @JCYear AND sp.SalesPointID = @SalesPointID
 		GROUP BY sp.Code, sp.Name, c.Code, c.Name
 	) X
 ) Y

@@ -1,14 +1,14 @@
 USE [UnileverOS]
 GO
 
---ALTER PROCEDURE [dbo].[IQSalesmanViewReport]
---@SalesPointID INT, @Month INT, @Year INT
---AS
---SET NOCOUNT ON;
+ALTER PROCEDURE [dbo].[GetIQTownViewReport]
+@SalesPointID INT, @JCMonth INT, @JCYear INT
+AS
+SET NOCOUNT ON;
 
-DECLARE @SalesPointID INT = 14, @Month INT = 109, @Year INT = 10
+--DECLARE @SalesPointID INT = 14, @JCMonth INT = 109, @JCYear INT = 10
 
-SELECT Y.CountryCode, Y.Country, Y.DistCode, Y.Distributor, Y.[FSE Code], Y.[FSE Name], Y.[SR Code], Y.[SR Name], Y.Designation,
+SELECT Y.CountryCode, Y.Country, Y.DistCode, Y.Distributor,
 SUM(Y.EBPublish) [EB Publish], MAX(Y.EBThreshold) [EB Threshold], SUM(Y.EBTarget) [EB Target], SUM(Y.EBActual) [EB Actual], (SUM(Y.EBActual) / SUM(Y.EBTarget) * 100) [EB Achievement %], SUM(Y.EBPerfectOutletCount) [EB Perfect Outlet Count],
 SUM(Y.RedlinePublished) [Redline Published], MAX(Y.RedlineThreshold) [Redline Threshold], SUM(Y.RedlineTarget) [Redline Target], SUM(Y.RedlineActual) [Redline Actual], (SUM(Y.RedlineActual) / SUM(Y.RedlineTarget) * 100) [Redline Achievement %], SUM(Y.RedlinePerfectOutletCount) [Redline Perfect Outlet Count],
 SUM(Y.WPPublished) [WP Published], MAX(Y.WPThreshold) [WP Threshold], SUM(Y.WPTarget) [WP Target], SUM(Y.WPActual) [WP Actual], (SUM(Y.WPActual) / SUM(Y.RedlineTarget) * 100) [WP Achievement %], SUM(Y.WPPerfectOutletCount) [WP Perfect Outlet Count],
@@ -21,7 +21,7 @@ SUM(IIF(Y.IsMarkedRedStore > 0, Y.EBTarget + Y.RedlineTarget + Y.WPTarget + Y.NP
 SUM(IIF(Y.IsMarkedRedStore > 0, Y.EBActual + Y.RedlineActual + Y.WPActual + Y.NPDActual, 0)) [Green Store Line Achievement]
 FROM
 (
-	SELECT X.CountryCode, X.Country, X.DistCode, X.Distributor, X.[FSE Code], X.[FSE Name], X.[SR Code], X.[SR Name], X.Designation,
+	SELECT X.CountryCode, X.Country, X.DistCode, X.Distributor,
 
 	X.EBTarget EBPublish, X.EBThreshold,
 	IIF(((X.EBTarget * X.EBThreshold * 0.01) > 0 AND (X.EBTarget * X.EBThreshold * 0.01) < 1), 1, (X.EBTarget * X.EBThreshold * 0.01)) EBTarget,
@@ -57,25 +57,23 @@ FROM
 	FROM
 	(
 		SELECT 'BD' CountryCode, 'Bangladesh' Country, sp.Code DistCode, sp.Name Distributor,
-		e2.Code [FSE Code], e2.Name [FSE Name], E.Code [SR Code], E.Name [SR Name], E.Designation,
 		SUM(i.Product) Product, SUM(i.Pack) Pack, SUM(i.Price) Price, SUM(i.Promotion) Promotion,
 		SUM(i.EBTarget) EBTarget, SUM(i.EBAchievement) EBActual,
-		SUM(i.EBThreshold)/COUNT(E.EmployeeID) EBThreshold,
+		SUM(i.EBThreshold)/COUNT(c.CustomerID) EBThreshold,
 		SUM(i.RLTarget) RedlineTarget, SUM(i.RLAchievement) RedlineActual,
-		SUM(i.RLThreshold)/COUNT(E.EmployeeID) RedlineThreshold,
+		SUM(i.RLThreshold)/COUNT(c.CustomerID) RedlineThreshold,
 		SUM(i.NPDTarget) NPDTarget, SUM(i.NPDAchievement) NPDActual,
-		SUM(i.NPDThreshold)/COUNT(E.EmployeeID) NPDThreshold,
+		SUM(i.NPDThreshold)/COUNT(c.CustomerID) NPDThreshold,
 		SUM(i.WPTarget) WPTarget, SUM(i.WPAchievement) WPActual,
-		SUM(i.WPThreshold)/COUNT(E.EmployeeID) WPThreshold,
+		SUM(i.WPThreshold)/COUNT(c.CustomerID) WPThreshold,
 		SUM(ISNULL(i.NetSales, 0)) NetSales, SUM(ISNULL(i.TotalNetSales, 0)) TotalNetSales,
 		MAX(ISNULL(i.IsMarkedRedStore, 0)) IsMarkedRedStore
 		FROM IQReport AS i
-		INNER JOIN Employees AS E ON E.EmployeeID = i.SRID
-		INNER JOIN SalesPoints AS sp ON E.SalesPointID = sp.SalesPointID
-		LEFT JOIN Employees AS e2 ON e2.EmployeeID = E.ParentID
+		INNER JOIN Customers AS c ON c.CustomerID=i.OutletID
+		INNER JOIN SalesPoints AS sp ON c.SalesPointID = sp.SalesPointID
 
-		WHERE i.JCMonthID = @Month AND i.JCYearID = @Year AND sp.SalesPointID = @SalesPointID
-		GROUP BY sp.Code, sp.Name, e2.Code, e2.Name, E.Code, E.Name, E.Designation, i.OutletID
+		WHERE i.JCMonthID = @JCMonth AND i.JCYearID = @JCYear AND sp.SalesPointID = @SalesPointID
+		GROUP BY sp.Code, sp.Name, i.OutletID
 	) X
 ) Y
-GROUP BY Y.CountryCode, Y.Country, Y.DistCode, Y.Distributor, Y.[FSE Code], Y.[FSE Name], Y.[SR Code], Y.[SR Name], Y.Designation
+GROUP BY Y.CountryCode, Y.Country, Y.DistCode, Y.Distributor
