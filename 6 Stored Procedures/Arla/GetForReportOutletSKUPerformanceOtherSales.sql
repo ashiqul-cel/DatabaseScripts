@@ -2,11 +2,11 @@ USE [ArlaCompass]
 GO
 
 --CREATE PROCEDURE [dbo].[GetForReportOutletSKUPerformanceOtherSales]
---@SalesPointIDs VARCHAR(MAX), @StartDate DATETIME, @EndDate DATETIME
+--@SalesPointID INT, @StartDate DATETIME, @EndDate DATETIME
 --AS
---SET NOCOUNT ON;
+--SET NOCOUNT ON
 
-DECLARE @SalesPointID INT = 815, @StartDate DATETIME = '1 Mar 2022', @EndDate DATETIME = '2 Mar 2022'
+DECLARE @SalesPointID INT = 840, @StartDate DATETIME = '1 Mar 2022', @EndDate DATETIME = '3Mar 2022'
 
 SELECT * FROM
 (
@@ -87,3 +87,5 @@ LEFT JOIN
 	GROUP BY SOI.InvoiceDate, SOI.SalesPointID, SOI.SRID, SOI.CustomerID, SK.Name, PH3.NodeID, PH3.Name
 ) B ON B.InvoiceDateV2 = A.InvoiceDate AND B.SalesPointIDV2 = A.SalesPointID 
 AND B.SRIDV2 = A.SRID AND B.CustomerIDV2 = A.CustomerID
+
+SET NOCOUNT OFF
