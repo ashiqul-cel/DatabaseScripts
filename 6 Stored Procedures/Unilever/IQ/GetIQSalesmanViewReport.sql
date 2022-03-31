@@ -32,8 +32,8 @@ SUM(Y.EBActual + Y.RedlineActual + Y.WPActual + Y.NPDActual) [Total Line Achieve
 
 CAST(SUM(Y.EBActual + Y.RedlineActual + Y.WPActual + Y.NPDActual) / SUM(Y.EBTarget + Y.RedlineTarget + Y.WPTarget + Y.NPDTarget) * 100 AS DECIMAL(5, 2)) [Target Line Ach %],
 
-SUM(IIF(Y.IsMarkedRedStore > 0, Y.EBTarget + Y.RedlineTarget + Y.WPTarget + Y.NPDTarget, 0)) [Green Store Line Target],
-SUM(IIF(Y.IsMarkedRedStore > 0, Y.EBActual + Y.RedlineActual + Y.WPActual + Y.NPDActual, 0)) [Green Store Line Achievement]
+SUM(IIF(Y.IsMarkedRedStore > 0, Y.EBTarget + Y.RedlineTarget + Y.WPTarget + Y.NPDTarget, 0)) [Green Store Target],
+SUM(IIF(Y.IsMarkedRedStore > 0, Y.EBActual + Y.RedlineActual + Y.WPActual + Y.NPDActual, 0)) [Green Store Achievement]
 FROM
 (
 	SELECT X.CountryCode, X.Country, X.DistCode, X.Distributor, X.[FSE Code], X.[FSE Name], X.[SR Code], X.[SR Name], X.Designation,

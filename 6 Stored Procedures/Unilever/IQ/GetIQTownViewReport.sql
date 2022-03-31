@@ -8,7 +8,7 @@ GO
 
 DECLARE @SalesPointID INT = 14, @JCMonth INT = 109, @JCYear INT = 10
 
-SELECT Y.CountryCode, Y.Country, Y.DistCode, Y.Distributor,
+SELECT Y.CountryCode, Y.Country, Y.DistCode, Y.Distributor, Y.TownName,
 
 SUM(Y.EBPublish) [EB Publish], MAX(Y.EBThreshold) [EB Threshold], SUM(Y.EBTarget) [EB Target], SUM(Y.EBActual) [EB Actual],
 CAST(SUM(Y.EBActual) / SUM(Y.EBTarget) * 100 AS DECIMAL(5, 2)) [EB Achievement %],
@@ -32,11 +32,11 @@ SUM(Y.EBActual + Y.RedlineActual + Y.WPActual + Y.NPDActual) [Total Line Achieve
 
 CAST(SUM(Y.EBActual + Y.RedlineActual + Y.WPActual + Y.NPDActual) / SUM(Y.EBTarget + Y.RedlineTarget + Y.WPTarget + Y.NPDTarget) * 100 AS DECIMAL(5, 2)) [Target Line Ach %],
 
-SUM(IIF(Y.IsMarkedRedStore > 0, Y.EBTarget + Y.RedlineTarget + Y.WPTarget + Y.NPDTarget, 0)) [Green Store Line Target],
-SUM(IIF(Y.IsMarkedRedStore > 0, Y.EBActual + Y.RedlineActual + Y.WPActual + Y.NPDActual, 0)) [Green Store Line Achievement]
+SUM(IIF(Y.IsMarkedRedStore > 0, Y.EBTarget + Y.RedlineTarget + Y.WPTarget + Y.NPDTarget, 0)) [Green Store Target],
+SUM(IIF(Y.IsMarkedRedStore > 0, Y.EBActual + Y.RedlineActual + Y.WPActual + Y.NPDActual, 0)) [Green Store Achievement]
 FROM
 (
-	SELECT X.CountryCode, X.Country, X.DistCode, X.Distributor,
+	SELECT X.CountryCode, X.Country, X.DistCode, X.Distributor, X.TownName,
 
 	X.EBTarget EBPublish, X.EBThreshold,
 	IIF(((X.EBTarget * X.EBThreshold * 0.01) > 0 AND (X.EBTarget * X.EBThreshold * 0.01) < 1), 1, (X.EBTarget * X.EBThreshold * 0.01)) EBTarget,
@@ -71,7 +71,7 @@ FROM
 
 	FROM
 	(
-		SELECT 'BD' CountryCode, 'Bangladesh' Country, sp.Code DistCode, sp.Name Distributor,
+		SELECT 'BD' CountryCode, 'Bangladesh' Country, sp.Code DistCode, sp.Name Distributor, sp.TownName,
 		SUM(i.Product) Product, SUM(i.Pack) Pack, SUM(i.Price) Price, SUM(i.Promotion) Promotion,
 		SUM(i.EBTarget) EBTarget, SUM(i.EBAchievement) EBActual,
 		SUM(i.EBThreshold)/COUNT(c.CustomerID) EBThreshold,
@@ -88,7 +88,7 @@ FROM
 		INNER JOIN SalesPoints AS sp ON c.SalesPointID = sp.SalesPointID
 
 		WHERE i.JCMonthID = @JCMonth AND i.JCYearID = @JCYear AND sp.SalesPointID = @SalesPointID
-		GROUP BY sp.Code, sp.Name, i.OutletID
+		GROUP BY sp.Code, sp.Name, sp.TownName, i.OutletID
 	) X
 ) Y
-GROUP BY Y.CountryCode, Y.Country, Y.DistCode, Y.Distributor
+GROUP BY Y.CountryCode, Y.Country, Y.DistCode, Y.Distributor, Y.TownName
