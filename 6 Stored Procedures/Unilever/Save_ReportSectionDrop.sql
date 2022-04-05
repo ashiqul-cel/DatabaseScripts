@@ -53,9 +53,9 @@ DECLARE	@OnDate DATETIME, @SalesPoint INT, @Outer_loop INT, @inner_loop INT, @SR
 			i.ScheduledVisit, Evr.ActualVisit, 0 as CallProductivity, (i.ScheduledVisit - Evr.ActualVisit) as VisitDropped,
 			0 as TotalSectionDrop, (CAST((i.ScheduledVisit - Evr.ActualVisit) AS DECIMAL)/NULLIF(i.ScheduledVisit, 0))*100 DropPercentage
 			FROM 			
-			(			
-				SELECT  count(distinct(c.CustomerID)) ScheduledVisit,sp.SalesPointID, s.Code salespointcode,
-				s.Name salespointname,s.SectionID ,s.Code AS sectionCode,s.[Name] AS SectionName,s.SRID AS DSRID,
+			(
+				SELECT  count(distinct(c.CustomerID)) ScheduledVisit,sp.SalesPointID, sp.Code salespointcode,
+				sp.Name salespointname,s.SectionID ,s.Code AS sectionCode,s.[Name] AS SectionName,s.SRID AS DSRID,
 				e.Name AS DSRName,	e.Code AS DSRCode ,r.RouteID, r.Code RouteCode,r.Name RouteName	
 				FROM salespoints sp JOIN Employees e on sp.SalesPointID = e.SalesPointID
 				join sections s ON s.SRID = e.EmployeeID 
@@ -64,7 +64,7 @@ DECLARE	@OnDate DATETIME, @SalesPoint INT, @Outer_loop INT, @inner_loop INT, @SR
 				where sp.SalesPointID = @SalesPoint and e.EntryModule = 3
 				and s.SectionID in (select SectionID from SalesInvoices si
 				where si.InvoiceDate = @OnDate and si.SalesPointID =@SalesPoint)
-				group by sp.SalesPointID, s.Code,s.Name,s.SectionID ,s.Code,s.[Name],s.SRID,
+				group by sp.SalesPointID, sp.Code,sp.Name,s.SectionID ,s.Code,s.[Name],s.SRID,
 				e.Name,e.Code,r.RouteID, r.Code,r.Name			
 			)I			
 			RIGHT OUTER join			
