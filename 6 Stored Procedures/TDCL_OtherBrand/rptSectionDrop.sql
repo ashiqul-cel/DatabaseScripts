@@ -3,7 +3,7 @@
 --AS
 --SET NOCOUNT ON;
 
-DECLARE @SalespointIDs VARCHAR(MAX) = '32', @StartDate DATETIME = '1 Mar 2022', @EndDate DATETIME = '31 Mar 2022'
+DECLARE @SalespointIDs VARCHAR(MAX) = '38', @StartDate DATETIME = '1 Mar 2022', @EndDate DATETIME = '31 Mar 2022'
 
 DECLARE @temSpIds TABLE (Id INT NOT NULL)
 INSERT INTO @temSpIds SELECT * FROM STRING_SPLIT(@SalespointIDs, ',')
@@ -52,10 +52,10 @@ SUM(T.ScheduledVisit) ScheduledVisit, SUM(T.ActualVisit) ActualVisit, SUM(T.Visi
 	
 		FROM salespoints sp
 		INNER JOIN Employees e on sp.SalesPointID = e.SalesPointID
-		INNER JOIN sections s ON s.SRID = e.EmployeeID 
+		INNER JOIN sections s ON s.SRID = e.EmployeeID AND sp.SalesPointID = s.SalesPointID
 		INNER JOIN Routes r on s.RouteID = r.RouteID
 	
-		WHERE sp.SalesPointID IN (SELECT Id FROM @temSpIds) AND s.SalesPointID IN (SELECT Id FROM @temSpIds) AND e.EntryModule = 3
+		WHERE sp.SalesPointID IN (SELECT Id FROM @temSpIds) AND e.EntryModule = 3
 		--and s.SectionID in 
 		--(
 		--	SELECT SectionID from SalesInvoices si
@@ -69,15 +69,21 @@ SUM(T.ScheduledVisit) ScheduledVisit, SUM(T.ActualVisit) ActualVisit, SUM(T.Visi
 	) I
 	LEFT JOIN
 	(
-		SELECT X.SectionID, X.SRID, COUNT(X.RouteID) ActualVisit FROM
+		SELECT X.SectionID, X.SRID, X.RouteID, COUNT(1) ActualVisit FROM
 		(
-			SELECT si.InvoiceDate, si.SectionID, si.SRID, si.RouteID
-			FROM SalesInvoices si
-			WHERE si.SalesPointID IN (SELECT Id FROM @temSpIds) AND
-			CAST(si.InvoiceDate AS DATE) BETWEEN CAST(@StartDate AS DATE) AND CAST(@EndDate AS DATE)
-			GROUP BY si.SectionID, si.SRID, si.RouteID, si.InvoiceDate
-		) X GROUP BY X.SectionID, X.SRID
-	) V ON I.SectionID = V.sectionID AND I.SRID = V.SRID
+			--SELECT si.InvoiceDate, si.SectionID, si.SRID, si.RouteID
+			--FROM SalesInvoices si
+			--WHERE si.SalesPointID IN (SELECT Id FROM @temSpIds) AND
+			--CAST(si.InvoiceDate AS DATE) BETWEEN CAST(@StartDate AS DATE) AND CAST(@EndDate AS DATE)
+			--GROUP BY si.SectionID, si.SRID, si.RouteID, si.InvoiceDate
+			
+			SELECT so.OrderDate, so.SectionID, so.SRID, so.RouteID
+			FROM SalesOrders AS so
+			WHERE so.SalesPointID IN (SELECT Id FROM @temSpIds) AND
+			CAST(so.OrderDate AS DATE) BETWEEN CAST(@StartDate AS DATE) AND CAST(@EndDate AS DATE)
+			GROUP BY so.SectionID, so.SRID, so.RouteID, so.OrderDate
+		) X GROUP BY X.SectionID, X.SRID, X.RouteID
+	) V ON I.SectionID = V.sectionID AND I.SRID = V.SRID AND I.RouteID = V.RouteID
 ) T
 INNER JOIN SalesPointMHNodes SPMH ON SPMH.SalesPointID = T.SalesPointID
 INNER JOIN MHNode MHT ON SPMH.NodeID = MHT.NodeID
