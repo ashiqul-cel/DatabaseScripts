@@ -56,13 +56,8 @@ SUM(T.ScheduledVisit) ScheduledVisit, SUM(T.ActualVisit) ActualVisit, SUM(T.Visi
 		INNER JOIN Routes r on s.RouteID = r.RouteID
 	
 		WHERE sp.SalesPointID IN (SELECT Id FROM @temSpIds) AND e.EntryModule = 3
-		--and s.SectionID in 
-		--(
-		--	SELECT SectionID from SalesInvoices si
-		--	WHERE si.SalesPointID IN (SELECT Id FROM @temSpIds) AND
-		--	CAST(si.InvoiceDate AS DATE) BETWEEN CAST(@StartDate AS DATE) AND CAST(@EndDate AS DATE)
-		--)
-		group by sp.SalesPointID, sp.Code, sp.Name,
+		
+		GROUP BY sp.SalesPointID, sp.Code, sp.Name,
 		s.SectionID, s.Code, s.Name,
 		r.RouteID, r.Code, r.Name,
 		s.SRID,	e.Name, e.Code, s.OrderColDay
@@ -70,13 +65,7 @@ SUM(T.ScheduledVisit) ScheduledVisit, SUM(T.ActualVisit) ActualVisit, SUM(T.Visi
 	LEFT JOIN
 	(
 		SELECT X.SectionID, X.SRID, X.RouteID, COUNT(1) ActualVisit FROM
-		(
-			--SELECT si.InvoiceDate, si.SectionID, si.SRID, si.RouteID
-			--FROM SalesInvoices si
-			--WHERE si.SalesPointID IN (SELECT Id FROM @temSpIds) AND
-			--CAST(si.InvoiceDate AS DATE) BETWEEN CAST(@StartDate AS DATE) AND CAST(@EndDate AS DATE)
-			--GROUP BY si.SectionID, si.SRID, si.RouteID, si.InvoiceDate
-			
+		(	
 			SELECT so.OrderDate, so.SectionID, so.SRID, so.RouteID
 			FROM SalesOrders AS so
 			WHERE so.SalesPointID IN (SELECT Id FROM @temSpIds) AND
