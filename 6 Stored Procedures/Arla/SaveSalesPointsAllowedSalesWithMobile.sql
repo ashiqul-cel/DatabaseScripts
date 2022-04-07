@@ -11,7 +11,7 @@ USING
 (
 	SELECT sp.SalesPointID, sp.Code, sp.Name, sp.[Status], @UserID UserID
 	FROM SalesPoints sp
-	WHERE sp.SalesPointID IN (SELECT * FROM STRING_SPLIT(@SalespointIDs, ','))	
+	WHERE sp.SalesPointID IN (SELECT * FROM STRING_SPLIT(@SalespointIDs, ','))
 ) src
 ON src.SalesPointID = trg.SalesPointID
 
