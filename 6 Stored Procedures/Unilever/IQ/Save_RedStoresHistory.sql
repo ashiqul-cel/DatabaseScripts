@@ -23,7 +23,7 @@ BEGIN
 	insert into @tempRedStoresHistory ([Year], [Month], SalesPointID, SPCode, OutletID, OutletCode, SRID, TargetLine, AchievementLine)
 
 	SELECT ir.Year, ir.Month, sp.SalesPointID, rs.DistributorCode, c.CustomerID, rs.OutletCode, ir.SRID,
-	CEILING(ir.EBTarget * ir.EBThreshold * 0.01 + ir.RLTarget * ir.RLThreshold * 0.01 + ir.NPDTarget * ir.NPDThreshold * 0.01 + ir.WPTarget * ir.WPThreshold * 0.01) TargetLine, 
+	CEILING(ir.EBTarget * ir.EBThreshold * 0.01) + CEILING(ir.RLTarget * ir.RLThreshold * 0.01) + CEILING(ir.NPDTarget * ir.NPDThreshold * 0.01) + CEILING(ir.WPTarget * ir.WPThreshold * 0.01) TargetLine, 
 	(ir.EBAchievement + ir.RLAchievement + ir.NPDAchievement + ir.WPAchievement) AchievementLine
 	from 
 	(
