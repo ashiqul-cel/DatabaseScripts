@@ -9,7 +9,7 @@ SET NOCOUNT ON;
 SELECT SI.CustomerID OutletID, SII.SKUID, 
 FLOOR(SII.Quantity / SK.CartonPcsRatio) Carton, (SII.Quantity % SK.CartonPcsRatio) Piece,
 (SII.Quantity * SII.TradePrice) Total, 0 TkOff, CONVERT(VARCHAR, SI.InvoiceDate, 111) OrderDate,
-DENSE_RANK() OVER(PARTITION BY SI.CustomerID ORDER BY CAST(SI.InvoiceDate AS DATE) DESC) AS NoOfOrder,
+DENSE_RANK() OVER(ORDER BY CAST(SI.InvoiceDate AS DATE) DESC) AS NoOfOrder,
 0 TPRID, 0 ItemID, SK.Name AS SKUName, 0 ISB2B
 
 FROM
@@ -21,5 +21,4 @@ FROM
 INNER JOIN SalesInvoiceItem AS SII ON SII.InvoiceID = SI.InvoiceID
 INNER JOIN SKUs AS SK ON SK.SKUID = SII.SKUID
 
-WHERE SI.SalesPointID = @SalesPointID AND SI.CustomerID = @OutletID 
-AND SII.Quantity > 0
+WHERE SII.Quantity > 0
