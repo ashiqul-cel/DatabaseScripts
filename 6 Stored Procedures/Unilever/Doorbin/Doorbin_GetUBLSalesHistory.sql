@@ -12,15 +12,14 @@ FLOOR(SII.Quantity / SK.CartonPcsRatio) Carton, (SII.Quantity % SK.CartonPcsRati
 DENSE_RANK() OVER(PARTITION BY SI.CustomerID ORDER BY CAST(SI.InvoiceDate AS DATE) DESC) AS NoOfOrder,
 0 TPRID, 0 ItemID, SK.Name AS SKUName, 0 ISB2B
 
-FROM SalesInvoices AS SI 
+FROM
+(
+	SELECT TOP 3 * FROM SalesInvoices
+	WHERE CustomerID = @OutletID AND GrossValue > 0
+	ORDER BY InvoiceDate DESC
+) SI
 INNER JOIN SalesInvoiceItem AS SII ON SII.InvoiceID = SI.InvoiceID
 INNER JOIN SKUs AS SK ON SK.SKUID = SII.SKUID
 
 WHERE SI.SalesPointID = @SalesPointID AND SI.CustomerID = @OutletID 
-AND SI.InvoiceID IN
-(
-	SELECT TOP 3 SI2.InvoiceID FROM SalesInvoices SI2
-	WHERE SI2.CustomerID = @OutletID AND SI2.GrossValue > 0
-	order by SI2.InvoiceDate desc
-)
 AND SII.Quantity > 0
