@@ -1,36 +1,39 @@
 USE [UnileverOS]
 GO
 
---ALTER PROCEDURE [dbo].[GetIQSalesmanViewReport]
---@SalesPointID INT, @JCMonth INT, @JCYear INT
---AS
---SET NOCOUNT ON;
+ALTER PROCEDURE [dbo].[GetIQSalesmanViewReport]
+@SalesPointID INT, @JCMonth INT, @JCYear INT
+AS
+SET NOCOUNT ON;
 
-DECLARE @SalesPointID INT = 14, @JCMonth INT = 109, @JCYear INT = 10
+--DECLARE @SalesPointID INT = 14, @JCMonth INT = 109, @JCYear INT = 10
 
 SELECT Y.CountryCode, Y.Country, Y.DistCode, Y.Distributor, Y.[FSE Code], Y.[FSE Name], Y.[SR Code], Y.[SR Name], Y.Designation,
 
 SUM(Y.EBPublish) [EB Publish], MAX(Y.EBThreshold) [EB Threshold], SUM(Y.EBTarget) [EB Target], SUM(Y.EBActual) [EB Actual],
-CAST(SUM(Y.EBActual) / SUM(Y.EBTarget) * 100 AS DECIMAL(5, 2)) [EB Achievement %],
+IIF(SUM(Y.EBTarget) > 0, CAST(SUM(Y.EBActual) / SUM(Y.EBTarget) * 100 AS DECIMAL(5, 2)), 0) [EB Achievement %],
 SUM(Y.EBPerfectOutletCount) [EB Perfect Outlet Count],
 
 SUM(Y.RedlinePublished) [Redline Published], MAX(Y.RedlineThreshold) [Redline Threshold], SUM(Y.RedlineTarget) [Redline Target], SUM(Y.RedlineActual) [Redline Actual],
-CAST(SUM(Y.RedlineActual) / SUM(Y.RedlineTarget) * 100 AS DECIMAL(5, 2)) [Redline Achievement %],
+IIF(SUM(Y.RedlineTarget) > 0, CAST(SUM(Y.RedlineActual) / SUM(Y.RedlineTarget) * 100 AS DECIMAL(5, 2)), 0) [Redline Achievement %],
 SUM(Y.RedlinePerfectOutletCount) [Redline Perfect Outlet Count],
 
 SUM(Y.WPPublished) [WP Published], MAX(Y.WPThreshold) [WP Threshold], SUM(Y.WPTarget) [WP Target], SUM(Y.WPActual) [WP Actual],
-CAST(SUM(Y.WPActual) / SUM(Y.RedlineTarget) * 100 AS DECIMAL(5, 2)) [WP Achievement %],
+IIF(SUM(Y.WPTarget) > 0, CAST(SUM(Y.WPActual) / SUM(Y.WPTarget) * 100 AS DECIMAL(5, 2)), 0) [WP Achievement %],
 SUM(Y.WPPerfectOutletCount) [WP Perfect Outlet Count],
 
 SUM(Y.NPDPublished) [NPD Published], MAX(Y.NPDThreshold) [NPD Threshold], SUM(Y.NPDTarget) [NPD Target], SUM(Y.NPDActual) [NPD Actual],
-CAST(SUM(Y.NPDActual) / SUM(Y.NPDTarget) * 100 AS DECIMAL(5, 2)) [NPD Achievement %],
+IIF(SUM(Y.NPDTarget) > 0, CAST(SUM(Y.NPDActual) / SUM(Y.NPDTarget) * 100 AS DECIMAL(5, 2)), 0) [NPD Achievement %],
 SUM(Y.NPDPerfectOutletCount) [NPD Perfect Outlet Count],
 
 SUM(Y.IQPerfectScore) [IQ Perfect Score], SUM(Y.TotalNetSales) [TotalNetSales], SUM(Y.NetSales) [Net Sales From IQ],
 SUM(Y.EBTarget + Y.RedlineTarget + Y.WPTarget + Y.NPDTarget) [Total Line Target],
 SUM(Y.EBActual + Y.RedlineActual + Y.WPActual + Y.NPDActual) [Total Line Achievement],
 
-CAST(SUM(Y.EBActual + Y.RedlineActual + Y.WPActual + Y.NPDActual) / SUM(Y.EBTarget + Y.RedlineTarget + Y.WPTarget + Y.NPDTarget) * 100 AS DECIMAL(5, 2)) [Target Line Ach %],
+IIF(
+	SUM(Y.EBTarget + Y.RedlineTarget + Y.WPTarget + Y.NPDTarget) > 0,
+	CAST(SUM(Y.EBActual + Y.RedlineActual + Y.WPActual + Y.NPDActual) / SUM(Y.EBTarget + Y.RedlineTarget + Y.WPTarget + Y.NPDTarget) * 100 AS DECIMAL(5, 2)), 0
+) [Target Line Ach %],
 
 SUM(IIF(Y.IsMarkedRedStore > 0, Y.EBTarget + Y.RedlineTarget + Y.WPTarget + Y.NPDTarget, 0)) [Green Store Target],
 SUM(IIF(Y.IsMarkedRedStore > 0, Y.EBActual + Y.RedlineActual + Y.WPActual + Y.NPDActual, 0)) [Green Store Achievement]
