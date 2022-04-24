@@ -6,7 +6,10 @@ GO
 --AS
 --SET NOCOUNT ON;
 
-DECLARE @SalesPointID INT = NULL, @JCMonth INT = 109, @JCYear INT = 10
+DECLARE @SalesPointID INT = 0, @JCMonth INT = 109, @JCYear INT = 10
+
+IF @SalesPointID = 0
+SET @SalesPointID = NULL
 
 DECLARE @Year INT = 0, @Month INT = 0
 SELECT @Year = YEAR(j.JCMonthStartDate), @Month = MONTH(j.JCMonthStartDate) FROM JCMonth j where j.JCMonthID = @JCMonth

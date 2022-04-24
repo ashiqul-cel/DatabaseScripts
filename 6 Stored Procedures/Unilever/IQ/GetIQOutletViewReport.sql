@@ -8,6 +8,9 @@ GO
 
 DECLARE @SalesPointID INT = 14, @JCMonth INT = 109, @JCYear INT = 10
 
+IF @SalesPointID = 0
+SET @SalesPointID = NULL
+
 SELECT Y.*, (Y.[EB Target] + Y.[Redline Target] + Y.[WP Target] + Y.[NPD Target]) [Total Line Target],
 (Y.[EB Actual] + Y.[Redline Actual] + Y.[WP Actual] + Y.[NPD Actual]) [Total Line Achievement],
 CAST((Y.[EB Actual] + Y.[Redline Actual] + Y.[WP Actual] + Y.[NPD Actual]) / (Y.[EB Target] + Y.[Redline Target] + Y.[WP Target] + Y.[NPD Target]) * 100 AS DECIMAL(5, 2)) [Target Line Ach %],
