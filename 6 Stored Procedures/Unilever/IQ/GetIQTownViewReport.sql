@@ -1,65 +1,47 @@
 USE [UnileverOS]
 GO
 
-ALTER PROCEDURE [dbo].[GetIQTownViewReport]
-@SalesPointID INT, @JCMonth INT, @JCYear INT
-AS
-SET NOCOUNT ON;
+--ALTER PROCEDURE [dbo].[GetIQTownViewReport]
+--@SalesPointID INT, @JCMonth INT, @JCYear INT
+--AS
+--SET NOCOUNT ON;
 
---DECLARE @SalesPointID INT = 14, @JCMonth INT = 109, @JCYear INT = 10
+DECLARE @SalesPointID INT = NULL, @JCMonth INT = 109, @JCYear INT = 10
 
-SELECT Y.CountryCode, Y.Country, Y.DistCode, Y.Distributor, Y.TownName,
+DECLARE @Year INT = 0, @Month INT = 0
+SELECT @Year = YEAR(j.JCMonthStartDate), @Month = MONTH(j.JCMonthStartDate) FROM JCMonth j where j.JCMonthID = @JCMonth
 
-SUM(Y.EBPublish) [EB Publish], MAX(Y.EBThreshold) [EB Threshold], SUM(Y.EBTarget) [EB Target], SUM(Y.EBActual) [EB Actual],
-IIF(SUM(Y.EBTarget) > 0, CAST(SUM(Y.EBActual) / SUM(Y.EBTarget) * 100 AS DECIMAL(5, 2)), 0) [EB Achievement %],
-SUM(Y.EBPerfectOutletCount) [EB Perfect Outlet Count],
+SELECT Y.*, (Y.[EB Target] + Y.[Redline Target] + Y.[WP Target] + Y.[NPD Target]) [Total Line Target],
+(Y.[EB Actual] + Y.[Redline Actual] + Y.[WP Actual] + Y.[NPD Actual]) [Total Line Achievement],
+CAST((Y.[EB Actual] + Y.[Redline Actual] + Y.[WP Actual] + Y.[NPD Actual]) / (Y.[EB Target] + Y.[Redline Target] + Y.[WP Target] + Y.[NPD Target]) * 100 AS DECIMAL(5, 2)) [Target Line Ach %]
 
-SUM(Y.RedlinePublished) [Redline Published], MAX(Y.RedlineThreshold) [Redline Threshold], SUM(Y.RedlineTarget) [Redline Target], SUM(Y.RedlineActual) [Redline Actual],
-IIF(SUM(Y.RedlineTarget) > 0, CAST(SUM(Y.RedlineActual) / SUM(Y.RedlineTarget) * 100 AS DECIMAL(5, 2)), 0) [Redline Achievement %],
-SUM(Y.RedlinePerfectOutletCount) [Redline Perfect Outlet Count],
-
-SUM(Y.WPPublished) [WP Published], MAX(Y.WPThreshold) [WP Threshold], SUM(Y.WPTarget) [WP Target], SUM(Y.WPActual) [WP Actual],
-IIF(SUM(Y.WPTarget) > 0, CAST(SUM(Y.WPActual) / SUM(Y.WPTarget) * 100 AS DECIMAL(5, 2)), 0) [WP Achievement %],
-SUM(Y.WPPerfectOutletCount) [WP Perfect Outlet Count],
-
-SUM(Y.NPDPublished) [NPD Published], MAX(Y.NPDThreshold) [NPD Threshold], SUM(Y.NPDTarget) [NPD Target], SUM(Y.NPDActual) [NPD Actual],
-IIF(SUM(Y.NPDTarget) > 0, CAST(SUM(Y.NPDActual) / SUM(Y.NPDTarget) * 100 AS DECIMAL(5, 2)), 0) [NPD Achievement %],
-SUM(Y.NPDPerfectOutletCount) [NPD Perfect Outlet Count],
-
-SUM(Y.IQPerfectScore) [IQ Perfect Score], SUM(Y.TotalNetSales) [TotalNetSales], SUM(Y.NetSales) [Net Sales From IQ],
-SUM(Y.EBTarget + Y.RedlineTarget + Y.WPTarget + Y.NPDTarget) [Total Line Target],
-SUM(Y.EBActual + Y.RedlineActual + Y.WPActual + Y.NPDActual) [Total Line Achievement],
-
-IIF(
-	SUM(Y.EBTarget + Y.RedlineTarget + Y.WPTarget + Y.NPDTarget) > 0,
-	CAST(SUM(Y.EBActual + Y.RedlineActual + Y.WPActual + Y.NPDActual) / SUM(Y.EBTarget + Y.RedlineTarget + Y.WPTarget + Y.NPDTarget) * 100 AS DECIMAL(5, 2)), 0
-) [Target Line Ach %],
-
-SUM(IIF(Y.IsMarkedRedStore > 0, Y.EBTarget + Y.RedlineTarget + Y.WPTarget + Y.NPDTarget, 0)) [Green Store Target],
-SUM(IIF(Y.IsMarkedRedStore > 0, Y.EBActual + Y.RedlineActual + Y.WPActual + Y.NPDActual, 0)) [Green Store Achievement]
 FROM
 (
 	SELECT X.CountryCode, X.Country, X.DistCode, X.Distributor, X.TownName,
 
-	X.EBTarget EBPublish, X.EBThreshold,
-	IIF(((X.EBTarget * X.EBThreshold * 0.01) > 0 AND (X.EBTarget * X.EBThreshold * 0.01) < 1), 1, (X.EBTarget * X.EBThreshold * 0.01)) EBTarget,
-	X.EBActual,
-	IIF(IIF((X.EBTarget * X.EBThreshold * 0.01) > 0, (X.EBActual * 100) / (X.EBTarget * X.EBThreshold * 0.01), 0) >= 100, 1, 0) EBPerfectOutletCount,
+	X.EBTarget [EB Publish], X.EBThreshold [EB Threshold],
+	IIF(((X.EBTarget * X.EBThreshold * 0.01) > 0 AND (X.EBTarget * X.EBThreshold * 0.01) < 1), 1, (X.EBTarget * X.EBThreshold * 0.01)) [EB Target],
+	X.EBActual [EB Actual],
+	IIF((X.EBTarget * X.EBThreshold * 0.01) > 0, CAST((X.EBActual * 100) / (X.EBTarget * X.EBThreshold * 0.01) AS DECIMAL(5, 2)), 0) [EB Achievement %],
+	IIF(IIF((X.EBTarget * X.EBThreshold * 0.01) > 0, (X.EBActual * 100) / (X.EBTarget * X.EBThreshold * 0.01), 0) >= 100, 1, 0) [EB Perfect Outlet Count],
 
-	X.RedlineTarget RedlinePublished, X.RedlineThreshold,
-	IIF(((X.RedlineTarget * X.RedlineThreshold * 0.01) > 0 AND (X.RedlineTarget * X.RedlineThreshold * 0.01) < 1), 1, (X.RedlineTarget * X.RedlineThreshold * 0.01)) RedlineTarget,
-	X.RedlineActual,
-	IIF(IIF((X.RedlineTarget * X.RedlineThreshold * 0.01) > 0, (X.RedlineActual * 100) / (X.RedlineTarget * X.RedlineThreshold * 0.01), 0) >= 100, 1, 0) RedlinePerfectOutletCount,
+	X.RedlineTarget [Redline Published], X.RedlineThreshold [Redline Threshold],
+	IIF(((X.RedlineTarget * X.RedlineThreshold * 0.01) > 0 AND (X.RedlineTarget * X.RedlineThreshold * 0.01) < 1), 1, (X.RedlineTarget * X.RedlineThreshold * 0.01)) [Redline Target],
+	X.RedlineActual [Redline Actual],
+	IIF((X.RedlineTarget * X.RedlineThreshold * 0.01) > 0, CAST((X.RedlineActual * 100) / (X.RedlineTarget * X.RedlineThreshold * 0.01) AS DECIMAL(5, 2)), 0) [Redline Achievement %],
+	IIF(IIF((X.RedlineTarget * X.RedlineThreshold * 0.01) > 0, (X.RedlineActual * 100) / (X.RedlineTarget * X.RedlineThreshold * 0.01), 0) >= 100, 1, 0) [Redline Perfect Outlet Count],
 
-	X.WPTarget WPPublished, X.WPThreshold,
-	IIF(((X.WPTarget * X.WPThreshold * 0.01) > 0 AND (X.WPTarget * X.WPThreshold * 0.01) < 1), 1, (X.WPTarget * X.WPThreshold * 0.01)) WPTarget,
-	X.WPActual,
-	IIF(IIF((X.WPTarget * X.WPThreshold * 0.01) > 0, (X.WPActual * 100) / (X.WPTarget * X.WPThreshold * 0.01), 0) >= 100, 1, 0) WPPerfectOutletCount,
+	X.WPTarget [WP Published], X.WPThreshold [WP Threshold],
+	IIF(((X.WPTarget * X.WPThreshold * 0.01) > 0 AND (X.WPTarget * X.WPThreshold * 0.01) < 1), 1, (X.WPTarget * X.WPThreshold * 0.01)) [WP Target],
+	X.WPActual [WP Actual],
+	IIF((X.WPTarget * X.WPThreshold * 0.01) > 0, CAST((X.WPActual * 100) / (X.WPTarget * X.WPThreshold * 0.01) AS DECIMAL(5, 2)), 0) [WP Achievement %],
+	IIF(IIF((X.WPTarget * X.WPThreshold * 0.01) > 0, (X.WPActual * 100) / (X.WPTarget * X.WPThreshold * 0.01), 0) >= 100, 1, 0) [WP Perfect Outlet Count],
 
-	X.NPDTarget NPDPublished, X.NPDThreshold,
-	IIF(((X.NPDTarget * X.NPDThreshold * 0.01) > 0 AND (X.NPDTarget * X.NPDThreshold * 0.01) < 1), 1, (X.NPDTarget * X.NPDThreshold * 0.01)) NPDTarget,
-	X.NPDActual,
-	IIF(IIF((X.NPDTarget * X.NPDThreshold * 0.01) > 0, (X.NPDActual * 100) / (X.NPDTarget * X.NPDThreshold * 0.01), 0) >= 100, 1, 0) NPDPerfectOutletCount,
+	X.NPDTarget [NPD Published], X.NPDThreshold [NPD Threshold],
+	IIF(((X.NPDTarget * X.NPDThreshold * 0.01) > 0 AND (X.NPDTarget * X.NPDThreshold * 0.01) < 1), 1, (X.NPDTarget * X.NPDThreshold * 0.01)) [NPD Target],
+	X.NPDActual [NPD Actual],
+	IIF((X.NPDTarget * X.NPDThreshold * 0.01) > 0, CAST((X.NPDActual * 100) / (X.NPDTarget * X.NPDThreshold * 0.01) AS DECIMAL(5, 2)), 0) [NPD Achievement %],
+	IIF(IIF((X.NPDTarget * X.NPDThreshold * 0.01) > 0, (X.NPDActual * 100) / (X.NPDTarget * X.NPDThreshold * 0.01), 0) >= 100, 1, 0) [NPD Perfect Outlet Count],
 
 	IIF
 	(
@@ -68,30 +50,40 @@ FROM
 		IIF((X.WPTarget * X.WPThreshold * 0.01) > 0, (X.WPActual * 100) / (X.WPTarget * X.WPThreshold * 0.01), 0) >= 100 AND
 		IIF((X.NPDTarget * X.NPDThreshold * 0.01) > 0, (X.NPDActual * 100) / (X.NPDTarget * X.NPDThreshold * 0.01), 0) >= 100,
 		1, 0
-	) IQPerfectScore,
+	) [IQ Perfect Score],
 
-	X.TotalNetSales, X.NetSales, X.IsMarkedRedStore
+	X.TotalNetSales [Total Net Sales], X.NetSales [Net Sales From IQ],
+	ISNULL(X.GreenStoreTarget, 0)  [Green Store Target], ISNULL(X.GreenStoreAchievement, 0) [Green Store Achievement]
 
 	FROM
 	(
-		SELECT 'BD' CountryCode, 'Bangladesh' Country, sp.Code DistCode, sp.Name Distributor, sp.TownName,
-		SUM(i.Product) Product, SUM(i.Pack) Pack, SUM(i.Price) Price, SUM(i.Promotion) Promotion,
-		SUM(i.EBTarget) EBTarget, SUM(i.EBAchievement) EBActual,
-		SUM(i.EBThreshold)/COUNT(c.CustomerID) EBThreshold,
-		SUM(i.RLTarget) RedlineTarget, SUM(i.RLAchievement) RedlineActual,
-		SUM(i.RLThreshold)/COUNT(c.CustomerID) RedlineThreshold,
-		SUM(i.NPDTarget) NPDTarget, SUM(i.NPDAchievement) NPDActual,
-		SUM(i.NPDThreshold)/COUNT(c.CustomerID) NPDThreshold,
-		SUM(i.WPTarget) WPTarget, SUM(i.WPAchievement) WPActual,
-		SUM(i.WPThreshold)/COUNT(c.CustomerID) WPThreshold,
-		SUM(ISNULL(i.NetSales, 0)) NetSales, SUM(ISNULL(i.TotalNetSales, 0)) TotalNetSales,
-		MAX(ISNULL(i.IsMarkedRedStore, 0)) IsMarkedRedStore
-		FROM IQReport AS i
-		INNER JOIN Customers AS c ON c.CustomerID=i.OutletID
-		INNER JOIN SalesPoints AS sp ON c.SalesPointID = sp.SalesPointID
+		SELECT Z.*, GS.GreenStoreTarget, GS.GreenStoreAchievement FROM
+		(
+			SELECT 'BD' CountryCode, 'Bangladesh' Country, sp.SalesPointID, sp.Code DistCode, sp.Name Distributor, sp.TownName,
+			SUM(i.Product) Product, SUM(i.Pack) Pack, SUM(i.Price) Price, SUM(i.Promotion) Promotion,
+			SUM(i.EBTarget) EBTarget, SUM(i.EBAchievement) EBActual,
+			SUM(i.EBThreshold)/COUNT(c.CustomerID) EBThreshold,
+			SUM(i.RLTarget) RedlineTarget, SUM(i.RLAchievement) RedlineActual,
+			SUM(i.RLThreshold)/COUNT(c.CustomerID) RedlineThreshold,
+			SUM(i.NPDTarget) NPDTarget, SUM(i.NPDAchievement) NPDActual,
+			SUM(i.NPDThreshold)/COUNT(c.CustomerID) NPDThreshold,
+			SUM(i.WPTarget) WPTarget, SUM(i.WPAchievement) WPActual,
+			SUM(i.WPThreshold)/COUNT(c.CustomerID) WPThreshold,
+			SUM(ISNULL(i.NetSales, 0)) NetSales, SUM(ISNULL(i.TotalNetSales, 0)) TotalNetSales,
+			MAX(ISNULL(i.IsMarkedRedStore, 0)) IsMarkedRedStore
+			FROM IQReport AS i
+			INNER JOIN Customers AS c ON c.CustomerID=i.OutletID
+			INNER JOIN SalesPoints AS sp ON c.SalesPointID = sp.SalesPointID
 
-		WHERE i.JCMonthID = @JCMonth AND i.JCYearID = @JCYear AND sp.SalesPointID = @SalesPointID
-		GROUP BY sp.Code, sp.Name, sp.TownName, i.OutletID
+			WHERE i.JCMonthID = @JCMonth AND i.JCYearID = @JCYear AND sp.SalesPointID = ISNULL(@SalesPointID, sp.SalesPointID)
+			GROUP BY sp.SalesPointID, sp.Code, sp.Name, sp.TownName
+		) Z LEFT JOIN
+		(
+			SELECT rsh.SalesPointID, COUNT(1) GreenStoreTarget,
+			SUM(IIF(rsh.AchievementLine >= rsh.TargetLine, 1, 0)) GreenStoreAchievement
+			FROM RedStoresHistory AS rsh
+			WHERE rsh.[Year] =@Year AND rsh.[Month] = @Month AND rsh.SalesPointID = ISNULL(@SalesPointID, rsh.SalesPointID)
+			GROUP BY rsh.SalesPointID
+		) GS ON Z.SalesPointID = GS.SalesPointID
 	) X
 ) Y
-GROUP BY Y.CountryCode, Y.Country, Y.DistCode, Y.Distributor, Y.TownName

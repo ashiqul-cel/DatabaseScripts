@@ -72,7 +72,7 @@ FROM
 		INNER JOIN Customers AS c ON c.CustomerID=i.OutletID
 		INNER JOIN SalesPoints AS sp ON c.SalesPointID = sp.SalesPointID
 
-		WHERE i.JCMonthID = @JCMonth AND i.JCYearID = @JCYear AND sp.SalesPointID = @SalesPointID
+		WHERE i.JCMonthID = @JCMonth AND i.JCYearID = @JCYear AND sp.SalesPointID = ISNULL(@SalesPointID, sp.SalesPointID)
 		GROUP BY sp.Code, sp.Name, c.Code, c.Name
 	) X
 ) Y
