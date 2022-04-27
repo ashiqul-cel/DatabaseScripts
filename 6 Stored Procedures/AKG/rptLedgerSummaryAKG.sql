@@ -1,9 +1,9 @@
--- ALTER PROCEDURE [dbo].[rptLedgerSummaryAKG]
--- @SalesPointID INT, @StartDate DATETIME, @EndDate DATETIME
--- AS
--- SET NOCOUNT ON;
+ALTER PROCEDURE [dbo].[rptLedgerSummaryAKG]
+@SalesPointID INT, @StartDate DATETIME, @EndDate DATETIME
+AS
+SET NOCOUNT ON;
 
-DECLARE @SalesPointID INT = 14, @StartDate DATETIME = '1 Oct 2021', @EndDate DATETIME = '31 Oct 2021';
+--DECLARE @SalesPointID INT = 14, @StartDate DATETIME = '1 Oct 2021', @EndDate DATETIME = '31 Oct 2021';
 
 WITH cte_amount AS (
 	SELECT Ctt.CustomerID, Ctt.InstrmntType, Ct.Effect, ISNULL(Ctt.Amount, 0.00) Amount
@@ -15,7 +15,7 @@ WITH cte_amount AS (
 SELECT MHD.Name Division, MHR.Name Region, MHT.Name Territory, Z.DBCode, Z.DBName,
 e.Code EmployeeCode, e.Name EmployeeName, e.Designation, e.ContactNo EmpNumber,
 Z.OutletCode, Z.OutletName, Z.[Address], Z.ChannelName, Z.ContactNo,
-(-1 * Z.OpeningBalance) OpeningBalance, Z.SalesAmount, (Z.CashAmount + Z.CheckAmount) [Collection/Received], Z.Adjustment,
+(-1 * Z.OpeningBalance) OpeningBalance, Z.SalesAmount, (Z.CashAmount + Z.CheckAmount) [Collection/Received], Z.Adjustment, '' [Adjustment Type],
 ((Z.OpeningBalance + Z.CashAmount + Z.CheckAmount + Z.MRValue + Z.Adjustment - Z.SalesAmount) * -1) ClosingBalance
 
 FROM
@@ -34,54 +34,34 @@ FROM
 	) SalesAmount,
 
 	(
-		(
-			ISNULL((SELECT ISNULL(SUM(ISNULL(Ctt.Amount, 0.00)), 0.00)
-			FROM CustTransactions AS Ctt
-			INNER JOIN CustomerTranTypes Ct ON Ct.TranTypeID = Ctt.TranTypeID
-			WHERE Ctt.SalesPointID=@SalesPointID AND
-			Ctt.CustomerID = CS.CustomerID AND (Ctt.TranDate BETWEEN @StartDate AND @EndDate) AND Ctt.InstrmntType = 1 AND Ct.Effect = 1), 0.00) 
-		)-(
-			ISNULL((SELECT ISNULL(SUM(ISNULL(Ctt.Amount, 0.00)), 0.00)
-			FROM CustTransactions AS Ctt
-			INNER JOIN CustomerTranTypes Ct ON Ct.TranTypeID = Ctt.TranTypeID
-			WHERE Ctt.SalesPointID=@SalesPointID AND
-			Ctt.CustomerID = CS.CustomerID AND (Ctt.TranDate BETWEEN @StartDate AND @EndDate) AND Ctt.InstrmntType = 1 AND Ct.Effect = 2), 0.00) 
-		)
+		ISNULL((SELECT ISNULL(SUM(ISNULL(Ctt.Amount, 0.00)), 0.00)
+		FROM cte_amount AS Ctt
+		WHERE Ctt.CustomerID = CS.CustomerID AND Ctt.InstrmntType = 1 AND Ctt.Effect = 1), 0.00) 
+	)-(
+		ISNULL((SELECT ISNULL(SUM(ISNULL(Ctt.Amount, 0.00)), 0.00)
+		FROM cte_amount AS Ctt
+		WHERE Ctt.CustomerID = CS.CustomerID AND Ctt.InstrmntType = 1 AND Ctt.Effect = 2), 0.00) 
 	) CashAmount,
-       
-	(
-		(
-			ISNULL((SELECT ISNULL(SUM(ISNULL(Ctt.Amount, 0.00)), 0.00)
-			FROM CustTransactions AS Ctt 
-			INNER JOIN CustomerTranTypes Ct ON Ct.TranTypeID = Ctt.TranTypeID
-			WHERE Ctt.SalesPointID=@SalesPointID AND
-			Ctt.CustomerID = CS.CustomerID AND (Ctt.TranDate BETWEEN @StartDate AND @EndDate) AND Ctt.InstrmntType > 1 AND Ctt.InstrmntType < 9 AND Ct.Effect = 1), 0.00) 
-		)-(
-			ISNULL((SELECT ISNULL(SUM(ISNULL(Ctt.Amount, 0.00)), 0.00)
-			FROM CustTransactions AS Ctt
-			INNER JOIN CustomerTranTypes Ct ON Ct.TranTypeID = Ctt.TranTypeID
-			WHERE Ctt.SalesPointID=@SalesPointID AND
-			Ctt.CustomerID = CS.CustomerID AND (Ctt.TranDate BETWEEN @StartDate AND @EndDate) AND Ctt.InstrmntType > 1 AND Ctt.InstrmntType < 9 AND Ct.Effect = 2), 0.00) 
-		)
-	)
-	CheckAmount, 
 
 	(
-		(
-			ISNULL((SELECT ISNULL(SUM(ISNULL(Ctt.Amount, 0.00)), 0.00)
-			FROM CustTransactions AS Ctt
-			INNER JOIN CustomerTranTypes Ct ON Ct.TranTypeID = Ctt.TranTypeID
-			WHERE Ctt.SalesPointID=@SalesPointID AND
-			Ctt.CustomerID = CS.CustomerID AND (Ctt.TranDate BETWEEN @StartDate AND @EndDate) AND Ctt.InstrmntType = 9 AND Ct.Effect = 1), 0.00) 
-		)-(
-			ISNULL((SELECT ISNULL(SUM(ISNULL(Ctt.Amount, 0.00)), 0.00)
-			FROM CustTransactions AS Ctt
-			INNER JOIN CustomerTranTypes Ct ON Ct.TranTypeID = Ctt.TranTypeID
-			WHERE Ctt.SalesPointID=@SalesPointID AND
-			Ctt.CustomerID = CS.CustomerID AND (Ctt.TranDate BETWEEN @StartDate AND @EndDate) AND Ctt.InstrmntType = 9 AND Ct.Effect = 2), 0.00) 
-		)
-	)
-	Adjustment, 
+		ISNULL((SELECT ISNULL(SUM(ISNULL(Ctt.Amount, 0.00)), 0.00)
+		FROM cte_amount AS Ctt
+		WHERE Ctt.CustomerID = CS.CustomerID AND Ctt.InstrmntType > 1 AND Ctt.InstrmntType < 9 AND Ctt.Effect = 1), 0.00) 
+	)-(
+		ISNULL((SELECT ISNULL(SUM(ISNULL(Ctt.Amount, 0.00)), 0.00)
+		FROM cte_amount AS Ctt
+		WHERE Ctt.CustomerID = CS.CustomerID AND Ctt.InstrmntType > 1 AND Ctt.InstrmntType < 9 AND Ctt.Effect = 2), 0.00) 
+	) CheckAmount, 
+
+	(
+		ISNULL((SELECT ISNULL(SUM(ISNULL(Ctt.Amount, 0.00)), 0.00)
+		FROM cte_amount AS Ctt
+		WHERE Ctt.CustomerID = CS.CustomerID AND Ctt.InstrmntType = 9 AND Ctt.Effect = 1), 0.00) 
+	)-(
+		ISNULL((SELECT ISNULL(SUM(ISNULL(Ctt.Amount, 0.00)), 0.00)
+		FROM cte_amount AS Ctt
+		WHERE Ctt.CustomerID = CS.CustomerID AND Ctt.InstrmntType = 9 AND Ctt.Effect = 2), 0.00) 
+	) Adjustment,
        
 	--ISNULL
 	--(
@@ -116,13 +96,9 @@ INNER JOIN SalesPointMHNodes SPMH ON SPMH.SalesPointID = Z.SalesPointID
 INNER JOIN MHNode MHT ON SPMH.NodeID = MHT.NodeID
 INNER JOIN MHNode MHR ON MHT.ParentID = MHR.NodeID
 INNER JOIN MHNode MHD ON MHR.ParentID = MHD.NodeID
-INNER JOIN Sections AS s ON Z.RouteID = s.RouteID
-INNER JOIN Employees AS e ON s.SRID = e.EmployeeID
-
--- 1934
-
---SELECT * FROM SalesPointMHNodes WHERE SalesPointID = 14
-
---SELECT 2927 - 1934
-
---SELECT 5538 /3
+LEFT JOIN
+(
+	SELECT DISTINCT RouteID, SRID FROM Sections
+	WHERE SalesPointID = @SalesPointID
+) s ON Z.RouteID = s.RouteID
+LEFT JOIN Employees AS e ON s.SRID = e.EmployeeID
