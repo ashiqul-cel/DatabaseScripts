@@ -10,7 +10,7 @@ sp.Code DBCode, sp.Name DBName,
 e.Code EmployeeCode, e.Name EmployeeName, e.Designation, e.ContactNo EmpNumber,
 X1.RouteCode, X1.RouteName, X1.Code [Outlet Code], X1.Name [Outlet Name], LTRIM(RTRIM(X1.Address1 + X1.Address2)) [Address],
 X1.ContactNo [Contact No], X2.LastVisitDate, X2.ReasonName [No Order Reason], X3.LastSalesDate, X3.NetValue LastSalesValue, 
-X4.LastColDay [Last Collection Day], X4.Amount [Last Collection Amount], X1.Balance
+X4.LastColDay [Last Collection Day], X4.Amount [Last Collection Amount], (X1.Balance * -1) Balance
 
 FROM
 ( 
