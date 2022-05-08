@@ -1,0 +1,2 @@
+ALTER TABLE MarketReturnItem
+ADD ReplacedSKUID INT NULL
