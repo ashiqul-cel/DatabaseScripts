@@ -31,7 +31,7 @@ BEGIN
 		WHERE CAST(@Present AS DATE) BETWEEN CAST(rs.StartDate AS DATE) AND CAST(rs.EndDate AS DATE)
 	) rs
 	INNER JOIN SalesPoints sp on rs.DistributorCode = sp.Code
-	INNER JOIN Customers c on rs.OutletCode = c.Code and sp.SalesPointID = c.SalesPointID
+	INNER JOIN Customers c on rs.OutletCode = c.Code and sp.SalesPointID = c.SalesPointID AND c.Status=16
 	INNER JOIN IQReport ir ON c.CustomerID = ir.OutletID
 	WHERE ir.Year = @PresentYear AND ir.Month = @PresentMonth
 
@@ -49,4 +49,3 @@ BEGIN
 
 	DELETE FROM @tempRedStoresHistory
 END
-
