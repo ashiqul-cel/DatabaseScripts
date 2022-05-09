@@ -12,12 +12,12 @@ DECLARE @tmpOrders TABLE
 	OrderID INT NOT NULL,
 	OrderDate DATETIME  NOT NULL,
 	Quantity INT NOT NULL,
-	InvoicePrice MONEY NOT NULL,
+	TradePrice MONEY NOT NULL,
 	NodeID INT NOT NULL
 )
 INSERT INTO @tmpOrders
-(SRID, SalesPointID, OrderID, OrderDate, Quantity, InvoicePrice, NodeID)
-SELECT so.SRID, so.SalesPointID, so.OrderID, so.OrderDate, soi.Quantity, soi.InvoicePrice, ph2.NodeID
+(SRID, SalesPointID, OrderID, OrderDate, Quantity, TradePrice, NodeID)
+SELECT so.SRID, so.SalesPointID, so.OrderID, so.OrderDate, soi.Quantity, soi.TradePrice, ph2.NodeID
 FROM SalesOrders AS so
 INNER JOIN SalesOrderItem AS soi ON so.OrderID = soi.OrderID
 INNER JOIN SKUs AS s ON s.SKUID = soi.SKUID
@@ -33,12 +33,12 @@ DECLARE @tmpSales TABLE
 	OrderID INT NOT NULL,
 	InvoiceID INT NOT NULL,
 	Quantity INT NOT NULL,
-	InvoicePrice MONEY NOT NULL,
+	TradePrice MONEY NOT NULL,
 	NodeID INT NOT NULL
 )
 INSERT INTO @tmpSales
-(SRID, SalesPointID, OrderID, InvoiceID, Quantity, InvoicePrice, NodeID)
-SELECT si.SRID, si.SalesPointID, si.OrderID, si.InvoiceID, sii.Quantity, sii.InvoicePrice, ph2.NodeID
+(SRID, SalesPointID, OrderID, InvoiceID, Quantity, TradePrice, NodeID)
+SELECT si.SRID, si.SalesPointID, si.OrderID, si.InvoiceID, sii.Quantity, sii.TradePrice, ph2.NodeID
 FROM SalesInvoices AS si
 INNER JOIN SalesInvoiceItem AS sii ON si.InvoiceID = sii.InvoiceID
 INNER JOIN SKUs AS s ON s.SKUID = sii.SKUID
@@ -47,7 +47,7 @@ INNER JOIN ProductHierarchies AS ph2 ON ph2.NodeID = ph1.ParentID AND ph2.LevelI
 WHERE si.OrderDate BETWEEN @StartDate AND @EndDate AND si.SalesPointID = @SalesPointID AND ph2.NodeID IN (2,3) AND si.OrderID IS NOT NULL
 
 
-SELECT MH.[National], MH.Region, MH.Territory, MH.[Distributor Code], MH.Distributor, E.Code SRCode, E.Name SRName, T12.OrderDate,
+SELECT MH.[National], MH.Region, MH.Territory, MH.[Distributor Code], MH.Distributor, E.Code SRCode, E.Name SRName, T11.OrderDate,
 
 ISNULL(T12.GMemoCountOrder, 0) GMemoCountOrder, ISNULL(T12.GOrderTotVal, 0) GOrderTotVal,
 ISNULL(T13.LMemoCountOrder, 0) LMemoCountOrder, ISNULL(T13.LOrderTotVal, 0) LOrderTotVal,
@@ -60,7 +60,7 @@ FROM
 (
 	SELECT so.SRID, so.SalesPointID, so.OrderDate, so.OrderID,
 	ISNULL(COUNT(DISTINCT so.OrderID), 0) OrderMemoCount,
-	ISNULL(SUM(so.Quantity * so.InvoicePrice), 0) TotOrderVal
+	ISNULL(SUM(so.Quantity * so.TradePrice), 0) TotOrderVal
 	FROM @tmpOrders so
 	GROUP BY so.OrderDate, so.OrderID, so.SRID, so.SalesPointID
 )T11
@@ -68,7 +68,7 @@ LEFT JOIN
 (
 	SELECT so.SRID, so.SalesPointID, so.OrderDate, so.OrderID,
 	ISNULL(COUNT(DISTINCT so.OrderID), 0) GMemoCountOrder,
-	ISNULL(SUM(so.Quantity * so.InvoicePrice), 0) GOrderTotVal
+	ISNULL(SUM(so.Quantity * so.TradePrice), 0) GOrderTotVal
 	FROM @tmpOrders so
 	WHERE so.NodeID = 2
 	GROUP BY so.OrderDate, so.OrderID, so.SRID, so.SalesPointID
@@ -77,7 +77,7 @@ LEFT JOIN
 (
 	SELECT so.SRID, so.SalesPointID, so.OrderDate, so.OrderID,
 	ISNULL(COUNT(DISTINCT so.OrderID), 0) LMemoCountOrder,
-	ISNULL(SUM(so.Quantity * so.InvoicePrice), 0) LOrderTotVal
+	ISNULL(SUM(so.Quantity * so.TradePrice), 0) LOrderTotVal
 	FROM @tmpOrders so
 	WHERE so.NodeID = 3
 	GROUP BY so.OrderDate, so.OrderID, so.SRID, so.SalesPointID
@@ -86,7 +86,7 @@ LEFT JOIN
 (
 	SELECT si.SRID, si.SalesPointID, si.OrderID,
 	ISNULL(COUNT(DISTINCT si.InvoiceID), 0) GMemoCountSales,
-	ISNULL(SUM(si.Quantity * si.InvoicePrice), 0) GSalesTotVal
+	ISNULL(SUM(si.Quantity * si.TradePrice), 0) GSalesTotVal
 	FROM @tmpSales AS si
 	WHERE si.NodeID = 2
 	GROUP BY si.OrderID, si.SRID, si.SalesPointID
@@ -95,7 +95,7 @@ LEFT JOIN
 (
 	SELECT si.SRID, si.SalesPointID, si.OrderID,
 	ISNULL(COUNT(DISTINCT si.InvoiceID), 0) LMemoCountSales,
-	ISNULL(SUM(si.Quantity * si.InvoicePrice), 0) LSalesTotVal
+	ISNULL(SUM(si.Quantity * si.TradePrice), 0) LSalesTotVal
 	FROM @tmpSales AS si
 	WHERE si.NodeID = 3
 	GROUP BY si.OrderID, si.SRID, si.SalesPointID
@@ -104,11 +104,11 @@ LEFT JOIN
 (
 	SELECT si.SRID, si.SalesPointID, si.OrderID,
 	ISNULL(COUNT(DISTINCT si.InvoiceID), 0) SalesMemoCount,
-	ISNULL(SUM(si.Quantity * si.InvoicePrice), 0) TotSalesVal
+	ISNULL(SUM(si.Quantity * si.TradePrice), 0) TotSalesVal
 	FROM @tmpSales AS si
 	GROUP BY si.OrderID, si.SRID, si.SalesPointID
 )T23 ON T11.OrderID = T23.OrderID
-INNER JOIN Employees AS e ON e.EmployeeID = T12.SRID
+INNER JOIN Employees AS e ON e.EmployeeID = T11.SRID
 INNER JOIN
 (
 	SELECT sp.SalesPointID, MHN.Name [National], MHR.Name Region, MHT.Name Territory, sp.Code [Distributor Code], sp.Name Distributor
