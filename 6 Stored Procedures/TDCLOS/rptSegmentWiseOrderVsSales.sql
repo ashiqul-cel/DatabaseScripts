@@ -1,9 +1,13 @@
---ALTER PROCEDURE [dbo].[rptSegmentWiseOrderVsSales]
---@SalesPointID INT, @StartDate DATETIME, @EndDate DATETIME
---AS
---SET NOCOUNT ON;
+ALTER PROCEDURE [dbo].[rptSegmentWiseOrderVsSales]
+@SalesPointIDs VARCHAR(MAX), @StartDate DATETIME, @EndDate DATETIME
+AS
+SET NOCOUNT ON;
 
-DECLARE @SalesPointID INT = 1, @StartDate DATETIME = '1 Oct 2021', @EndDate DATETIME = '31 Oct 2021';
+--DECLARE @SalesPointIDs VARCHAR(MAX) = '1', @StartDate DATETIME = '1 Oct 2021', @EndDate DATETIME = '31 Oct 2021';
+
+DECLARE @tmpIDs TABLE(ID INT NOT NULL)
+INSERT INTO @tmpIDs
+SELECT * FROM STRING_SPLIT(@SalesPointIDs, ',')
 
 DECLARE @tmpOrders TABLE
 (
@@ -23,7 +27,7 @@ INNER JOIN SalesOrderItem AS soi ON so.OrderID = soi.OrderID
 INNER JOIN SKUs AS s ON s.SKUID = soi.SKUID
 INNER JOIN ProductHierarchies AS ph1 ON s.ProductID = ph1.NodeID AND ph1.LevelID = 3
 INNER JOIN ProductHierarchies AS ph2 ON ph2.NodeID = ph1.ParentID AND ph2.LevelID = 2
-WHERE so.OrderDate BETWEEN @StartDate AND @EndDate AND so.SalesPointID = @SalesPointID AND ph2.NodeID IN (2,3)
+WHERE so.OrderDate BETWEEN @StartDate AND @EndDate AND so.SalesPointID IN (SELECT * FROM @tmpIDs) AND ph2.NodeID IN (2,3)
 
 
 DECLARE @tmpSales TABLE
@@ -45,7 +49,7 @@ INNER JOIN SalesInvoiceItem AS sii ON si.InvoiceID = sii.InvoiceID
 INNER JOIN SKUs AS s ON s.SKUID = sii.SKUID
 INNER JOIN ProductHierarchies AS ph1 ON s.ProductID = ph1.NodeID AND ph1.LevelID = 3
 INNER JOIN ProductHierarchies AS ph2 ON ph2.NodeID = ph1.ParentID AND ph2.LevelID = 2
-WHERE si.OrderDate BETWEEN @StartDate AND @EndDate AND si.SalesPointID = @SalesPointID AND ph2.NodeID IN (2,3)
+WHERE si.OrderDate BETWEEN @StartDate AND @EndDate AND si.SalesPointID IN (SELECT * FROM @tmpIDs) AND ph2.NodeID IN (2,3)
 
 
 SELECT MH.[National], MH.Region, MH.Territory, MH.[Distributor Code], MH.Distributor, E.Code SRCode, E.Name SRName, T11.OrderDate,
@@ -119,7 +123,7 @@ INNER JOIN
 	INNER JOIN MHNode MHT ON SPMH.NodeID = MHT.NodeID
 	INNER JOIN MHNode MHR ON MHT.ParentID = MHR.NodeID
 	INNER JOIN MHNode MHN ON MHR.ParentID = MHN.NodeID
-	WHERE sp.SalesPointID = @SalesPointID
+	WHERE sp.SalesPointID IN (SELECT * FROM @tmpIDs)
 ) MH ON T11.SalesPointID = MH.SalesPointID
 
 UNION ALL
@@ -169,5 +173,5 @@ INNER JOIN
 	INNER JOIN MHNode MHT ON SPMH.NodeID = MHT.NodeID
 	INNER JOIN MHNode MHR ON MHT.ParentID = MHR.NodeID
 	INNER JOIN MHNode MHN ON MHR.ParentID = MHN.NodeID
-	WHERE sp.SalesPointID = @SalesPointID
+	WHERE sp.SalesPointID IN (SELECT * FROM @tmpIDs)
 ) MH ON T23.SalesPointID = MH.SalesPointID
