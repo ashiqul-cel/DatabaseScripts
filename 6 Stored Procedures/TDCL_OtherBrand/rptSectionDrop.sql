@@ -55,7 +55,7 @@ SUM(T.ScheduledVisit) ScheduledVisit, SUM(T.ActualVisit) ActualVisit, SUM(T.Visi
 		INNER JOIN sections s ON s.SRID = e.EmployeeID AND sp.SalesPointID = s.SalesPointID
 		INNER JOIN Routes r on s.RouteID = r.RouteID
 	
-		WHERE sp.SalesPointID IN (SELECT Id FROM @temSpIds) AND e.EntryModule = 3
+		WHERE sp.SalesPointID IN (SELECT Id FROM @temSpIds) AND e.EntryModule = 3 AND s.[Status] = 16
 		
 		GROUP BY sp.SalesPointID, sp.Code, sp.Name,
 		s.SectionID, s.Code, s.Name,
