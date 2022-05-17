@@ -3,7 +3,7 @@ CREATE PROCEDURE [dbo].[rptInvoiceWisePromotionDetails]
 AS
 SET NOCOUNT ON;
 
-DECLARE @SalespointIDs VARCHAR(MAX) = '33', @FromDate DATETIME = '1 Mar 2022', @ToDate DATETIME = '31 Mar 2022'
+-- DECLARE @SalespointIDs VARCHAR(MAX) = '33', @FromDate DATETIME = '1 Mar 2022', @ToDate DATETIME = '31 Mar 2022'
 
 DECLARE @tmpSalesInvoices TABLE
 (
