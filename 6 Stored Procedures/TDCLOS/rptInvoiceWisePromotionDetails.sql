@@ -1,8 +1,5 @@
-USE [TDCL_15Dec_2021]
-GO
-
-ALTER PROCEDURE [dbo].[rptInvoiceWisePromotionDetailsTDCL]
-@FromDate DATETIME, @ToDate DATETIME, @SalesPointIDs VARCHAR(MAX)
+ALTER PROCEDURE [dbo].[rptInvoiceWisePromotionDetails]
+@SalespointIDs VARCHAR(MAX), @FromDate DATETIME, @ToDate DATETIME
 AS
 SET NOCOUNT ON;
 
