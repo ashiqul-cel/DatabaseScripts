@@ -10,5 +10,7 @@ CREATE TABLE [dbo].[OutletWiseLastThreeDaysSales](
 	InvoiceDate DATETIME NOT NULL,
 	TPRID INT NULL,
 	InvoiceItemID INT NOT NULL,
-	InvoiceID INT NOT NULL
+	InvoiceID INT NOT NULL,
+	OutletName VARCHAR (150) NULL,
+	SRID INT NULL
 )
