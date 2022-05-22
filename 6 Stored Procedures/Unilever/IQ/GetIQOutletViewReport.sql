@@ -1,12 +1,12 @@
 USE [UnileverOS]
 GO
 
---CREATE PROCEDURE [dbo].[GetIQOutletViewReport]
---@SalesPointID INT, @JCMonth INT, @JCYear INT
---AS
---SET NOCOUNT ON;
+ALTER PROCEDURE [dbo].[GetIQOutletViewReport]
+@SalesPointID INT, @JCMonth INT, @JCYear INT
+AS
+SET NOCOUNT ON;
 
-DECLARE @SalesPointID INT = 14, @JCMonth INT = 109, @JCYear INT = 10
+-- DECLARE @SalesPointID INT = 14, @JCMonth INT = 109, @JCYear INT = 10
 
 IF @SalesPointID = 0
 SET @SalesPointID = NULL
@@ -14,9 +14,15 @@ SET @SalesPointID = NULL
 SELECT Y.*, (Y.[EB Target] + Y.[Redline Target] + Y.[WP Target] + Y.[NPD Target]) [Total Line Target],
 (Y.[EB Actual] + Y.[Redline Actual] + Y.[WP Actual] + Y.[NPD Actual]) [Total Line Achievement],
 CAST((Y.[EB Actual] + Y.[Redline Actual] + Y.[WP Actual] + Y.[NPD Actual]) / (Y.[EB Target] + Y.[Redline Target] + Y.[WP Target] + Y.[NPD Target]) * 100 AS DECIMAL(5, 2)) [Target Line Ach %],
-IIF(Y.IsMarkedRedStore > 0, 'Y', 'N') [Green Store],
-IIF(Y.IsMarkedRedStore > 0, Y.[EB Target] + Y.[Redline Target] + Y.[WP Target] + Y.[NPD Target], 0) [Green Store Line Target],
-IIF(Y.IsMarkedRedStore > 0, Y.[EB Actual] + Y.[Redline Actual] + Y.[WP Actual] + Y.[NPD Actual], 0) [Green Store Line Achievement]
+IIF(Y.IsMarkedRedStore > 0, 'Y', 'N') [Red Store],
+IIF(Y.IsMarkedRedStore > 0, Y.[EB Target] + Y.[Redline Target] + Y.[WP Target] + Y.[NPD Target], 0) [Red Store Line Target],
+IIF(Y.IsMarkedRedStore > 0, Y.[EB Actual] + Y.[Redline Actual] + Y.[WP Actual] + Y.[NPD Actual], 0) [Red Store Line Achievement],
+IIF
+(
+	Y.IsMarkedRedStore > 0,
+	IIF((Y.[EB Actual] + Y.[Redline Actual] + Y.[WP Actual] + Y.[NPD Actual]) >= (Y.[EB Target] + Y.[Redline Target] + Y.[WP Target] + Y.[NPD Target]), 'Yes', 'No'),
+	''
+) [Is Green Store]
 FROM 
 (
 	SELECT X.CountryCode, X.Country, X.DistCode, X.Distributor, X.OutletCode, X.Outlet,

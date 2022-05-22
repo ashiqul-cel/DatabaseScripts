@@ -56,11 +56,11 @@ FROM
 	) [IQ Perfect Score],
 
 	X.TotalNetSales [Total Net Sales], X.NetSales [Net Sales From IQ],
-	ISNULL(X.GreenStoreTarget, 0)  [Green Store Target], ISNULL(X.GreenStoreAchievement, 0) [Green Store Achievement]
+	ISNULL(X.RedStoreTarget, 0)  [Red Store Target], ISNULL(X.RedStoreAchievement, 0) [Red Store Achievement]
 
 	FROM
 	(
-		SELECT Z.*, GS.GreenStoreTarget, GS.GreenStoreAchievement FROM
+		SELECT Z.*, GS.RedStoreTarget, GS.RedStoreAchievement FROM
 		(
 			SELECT 'BD' CountryCode, 'Bangladesh' Country, sp.SalesPointID, sp.Code DistCode, sp.Name Distributor,
 			e2.Code [FSE Code], e2.Name [FSE Name], E.EmployeeID, E.Code [SR Code], E.Name [SR Name], E.Designation,
@@ -83,10 +83,12 @@ FROM
 			GROUP BY sp.SalesPointID, sp.Code, sp.Name, e2.Code, e2.Name, E.EmployeeID, E.Code, E.Name, E.Designation
 		) Z LEFT JOIN
 		(
-			SELECT rsh.SalesPointID, rsh.SRID, COUNT(1) GreenStoreTarget,
-			SUM(IIF(rsh.AchievementLine >= rsh.TargetLine, 1, 0)) GreenStoreAchievement
-			FROM RedStoresHistory AS rsh
-			WHERE rsh.[Year] =@Year AND rsh.[Month] = @Month AND rsh.SalesPointID = ISNULL(@SalesPointID, rsh.SalesPointID)
+			SELECT rsh.SalesPointID, rsh.SRID, COUNT(*) RedStoreTarget,
+			SUM(IIF(rsh.AchievementLine >= rsh.TargetLine, 1, 0)) RedStoreAchievement
+			FROM Sections s
+			INNER JOIN Customers c ON s.RouteID = c.RouteID
+			INNER JOIN RedStoresHistory rsh ON c.CustomerID = rsh.OutletID AND rsh.SRID = s.SRID
+			WHERE rsh.[Year] = @Year AND rsh.[Month] = @Month AND rsh.SalesPointID = ISNULL(@SalesPointID, rsh.SalesPointID)
 			GROUP BY rsh.SalesPointID, rsh.SRID
 		) GS ON Z.EmployeeID = GS.SRID AND Z.SalesPointID = GS.SalesPointID
 	) X
