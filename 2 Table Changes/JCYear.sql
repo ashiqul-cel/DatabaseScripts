@@ -1,0 +1,3 @@
+ALTER TABLE [dbo].[JCYear]
+ADD [Status] INT NULL,
+SystemID INT NULL
