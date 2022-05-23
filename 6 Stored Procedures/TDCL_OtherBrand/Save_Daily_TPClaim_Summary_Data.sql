@@ -11,7 +11,7 @@ INNER JOIN ProductHierarchies AS ph2 ON ph2.NodeID = ph1.ParentID
 INNER JOIN ProductHierarchies AS ph3 ON ph3.NodeID = ph2.ParentID
 
 DECLARE	@OnDate DATETIME, @SalesPoint INT, @Outer_loop INT, @inner_loop INT
-	
+
 IF @SalesPointID IS NULL
 BEGIN
 	DECLARE SalesPoints CURSOR FOR
@@ -22,7 +22,7 @@ BEGIN
 	DECLARE SalesPoints CURSOR FOR
 	SELECT DISTINCT SalesPointID FROM SalesPoints WHERE SystemID=@SystemID AND SalesPointID=@SalesPointID ORDER BY SalesPointID
 END
- 
+
 BEGIN
 	OPEN SalesPoints
 	FETCH NEXT FROM SalesPoints INTO @SalesPoint
@@ -53,7 +53,7 @@ BEGIN
 				INSERT INTO Daily_TP_Claim_Summary_Data(TranDate,SalesPointID,SalesPointCode,SalesPointName,	
 				[ChannelCode],[ChannelName],[SRCode],[SRName],[SRContactNo],[RouteCode],[RouteName],[OutletCode],[OutletName],
 				[InvoiceNo],[PromotionID],[Promotion],SlabID,SlabNo,[StartDate],[EndDate],[TotalSales],[TotalSalespcs],[ClaimValue],[ClaimPcs],[PromoSalesValue], CompanyName)
-     	  	  
+
 				select TranDate,SalesPointID,SalesPointCode,SalesPointName,ChannelCode,ChannelName,srcode,srname,contactno,routecode,routename,outletcode,outletname, 
 				invoiceno,PromotionID,Promotion,SlabID,SlabNo,StartDate,EndDate,TotalSales,TotalSalespcs, ClaimValue,ClaimPcs,PromoSalesValue, ts.CompanyName
 				from
