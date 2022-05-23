@@ -28,27 +28,27 @@ FROM
 	SELECT X.CountryCode, X.Country, X.DistCode, X.Distributor, X.OutletCode, X.Outlet,
 
 	X.EBTarget [EB Publish], X.EBThreshold [EB Threshold],
-	IIF(((X.EBTarget * X.EBThreshold * 0.01) > 0 AND (X.EBTarget * X.EBThreshold * 0.01) < 1), 1, (X.EBTarget * X.EBThreshold * 0.01)) [EB Target],
+	IIF(((X.EBTarget * X.EBThreshold * 0.01) > 0 AND (X.EBTarget * X.EBThreshold * 0.01) < 1), 1, ROUND((X.EBTarget * X.EBThreshold * 0.01), 0)) [EB Target],
 	X.EBActual [EB Actual],
-	IIF((X.EBTarget * X.EBThreshold * 0.01) > 0, CAST((X.EBActual * 100) / (X.EBTarget * X.EBThreshold * 0.01) AS DECIMAL(5, 2)), 0) [EB Achievement %],
+	IIF((X.EBTarget * X.EBThreshold * 0.01) > 0, CAST((X.EBActual * 100) / ROUND((X.EBTarget * X.EBThreshold * 0.01), 0) AS DECIMAL(5, 2)), 0) [EB Achievement %],
 	IIF(IIF((X.EBTarget * X.EBThreshold * 0.01) > 0, (X.EBActual * 100) / (X.EBTarget * X.EBThreshold * 0.01), 0) >= 100, 1, 0) [EB Perfect Outlet Count],
 
 	X.RedlineTarget [Redline Published], X.RedlineThreshold [Redline Threshold],
-	IIF(((X.RedlineTarget * X.RedlineThreshold * 0.01) > 0 AND (X.RedlineTarget * X.RedlineThreshold * 0.01) < 1), 1, (X.RedlineTarget * X.RedlineThreshold * 0.01)) [Redline Target],
+	IIF(((X.RedlineTarget * X.RedlineThreshold * 0.01) > 0 AND (X.RedlineTarget * X.RedlineThreshold * 0.01) < 1), 1, ROUND((X.RedlineTarget * X.RedlineThreshold * 0.01), 0)) [Redline Target],
 	X.RedlineActual [Redline Actual],
-	IIF((X.RedlineTarget * X.RedlineThreshold * 0.01) > 0, CAST((X.RedlineActual * 100) / (X.RedlineTarget * X.RedlineThreshold * 0.01) AS DECIMAL(5, 2)), 0) [Redline Achievement %],
+	IIF((X.RedlineTarget * X.RedlineThreshold * 0.01) > 0, CAST((X.RedlineActual * 100) / ROUND((X.RedlineTarget * X.RedlineThreshold * 0.01), 0) AS DECIMAL(5, 2)), 0) [Redline Achievement %],
 	IIF(IIF((X.RedlineTarget * X.RedlineThreshold * 0.01) > 0, (X.RedlineActual * 100) / (X.RedlineTarget * X.RedlineThreshold * 0.01), 0) >= 100, 1, 0) [Redline Perfect Outlet Count],
 
 	X.WPTarget [WP Published], X.WPThreshold [WP Threshold],
-	IIF(((X.WPTarget * X.WPThreshold * 0.01) > 0 AND (X.WPTarget * X.WPThreshold * 0.01) < 1), 1, (X.WPTarget * X.WPThreshold * 0.01)) [WP Target],
+	IIF(((X.WPTarget * X.WPThreshold * 0.01) > 0 AND (X.WPTarget * X.WPThreshold * 0.01) < 1), 1, ROUND((X.WPTarget * X.WPThreshold * 0.01), 0)) [WP Target],
 	X.WPActual [WP Actual],
-	IIF((X.WPTarget * X.WPThreshold * 0.01) > 0, CAST((X.WPActual * 100) / (X.WPTarget * X.WPThreshold * 0.01) AS DECIMAL(5, 2)), 0) [WP Achievement %],
+	IIF((X.WPTarget * X.WPThreshold * 0.01) > 0, CAST((X.WPActual * 100) / ROUND((X.WPTarget * X.WPThreshold * 0.01), 0) AS DECIMAL(5, 2)), 0) [WP Achievement %],
 	IIF(IIF((X.WPTarget * X.WPThreshold * 0.01) > 0, (X.WPActual * 100) / (X.WPTarget * X.WPThreshold * 0.01), 0) >= 100, 1, 0) [WP Perfect Outlet Count],
 
 	X.NPDTarget [NPD Published], X.NPDThreshold [NPD Threshold],
-	IIF(((X.NPDTarget * X.NPDThreshold * 0.01) > 0 AND (X.NPDTarget * X.NPDThreshold * 0.01) < 1), 1, (X.NPDTarget * X.NPDThreshold * 0.01)) [NPD Target],
+	IIF(((X.NPDTarget * X.NPDThreshold * 0.01) > 0 AND (X.NPDTarget * X.NPDThreshold * 0.01) < 1), 1, ROUND((X.NPDTarget * X.NPDThreshold * 0.01), 0)) [NPD Target],
 	X.NPDActual [NPD Actual],
-	IIF((X.NPDTarget * X.NPDThreshold * 0.01) > 0, CAST((X.NPDActual * 100) / (X.NPDTarget * X.NPDThreshold * 0.01) AS DECIMAL(5, 2)), 0) [NPD Achievement %],
+	IIF((X.NPDTarget * X.NPDThreshold * 0.01) > 0, CAST((X.NPDActual * 100) / ROUND((X.NPDTarget * X.NPDThreshold * 0.01), 0) AS DECIMAL(5, 2)), 0) [NPD Achievement %],
 	IIF(IIF((X.NPDTarget * X.NPDThreshold * 0.01) > 0, (X.NPDActual * 100) / (X.NPDTarget * X.NPDThreshold * 0.01), 0) >= 100, 1, 0) [NPD Perfect Outlet Count],
 
 	IIF
