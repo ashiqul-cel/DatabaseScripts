@@ -1,13 +1,17 @@
---CREATE PROCEDURE [dbo].[Get_ProductivitySalesPointWiseTDCLOB] 
---@FromDate DATETIME, @ToDate DATETIME, @YearMonth INT, @SalesPointIDs VARCHAR(MAX)
---AS
---SET NOCOUNT ON;
+ALTER PROCEDURE [dbo].[Get_ProductivitySalesPointWiseTDCLOB] 
+@FromDate DATETIME, @ToDate DATETIME, @YearMonth INT, @SalesPointIDs VARCHAR(MAX), @SKUIDs VARCHAR(MAX)
+AS
+SET NOCOUNT ON;
 
-DECLARE @FromDate DATETIME = '1 march 2022', @ToDate DATETIME = '31 march 2022',
-@YearMonth INT = 202203, @SalesPointIDs VARCHAR(MAX) = '32,33,34,35,36,37,38,39,40'
+--DECLARE @FromDate DATETIME = '1 march 2022', @ToDate DATETIME = '31 march 2022',
+--@YearMonth INT = 202203, @SalesPointIDs VARCHAR(MAX) = '32,33,34,35,36,37,38,39,40',
+--@SKUIDs VARCHAR(MAX) = '333,348,365,367'
 
 DECLARE @temSpIds TABLE (Id INT NOT NULL)
 INSERT INTO @temSpIds SELECT * FROM STRING_SPLIT(@SalespointIDs, ',')
+
+DECLARE @temSkuIds TABLE (Id INT NOT NULL)
+INSERT INTO @temSkuIds SELECT * FROM STRING_SPLIT(@SKUIDs, ',')
 
 SELECT MH.NationalName, MH.RegionName, MH.AreaName, MH.TerritoryName, MH.DBCode, MH.DBName,
 
@@ -45,5 +49,6 @@ INNER JOIN
 
 WHERE CAST(SI.InvoiceDate AS DATE) BETWEEN CAST(@FromDate AS DATE) AND CAST(@ToDate AS DATE)
 AND SI.SalesPointID IN (SELECT Id FROM @temSpIds AS tsi)
+AND SII.SKUID IN (SELECT Id FROM @temSkuIds)
 
 GROUP BY MH.NationalName, MH.RegionName, MH.AreaName, MH.TerritoryName, MH.DBCode, MH.DBName, MH.SalesPointID, MH.DBCode, MH.DBName, SI.SalesPointID
