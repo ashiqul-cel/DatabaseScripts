@@ -1,15 +1,19 @@
 ALTER PROCEDURE [dbo].[rptSRAttendance]
-@StartDate DATETIME, @EndDate DATETIME
+@SalespointIDs VARCHAR(MAX), @StartDate DATETIME, @EndDate DATETIME
 AS
 SET NOCOUNT ON;
 
---DECLARE @StartDate DATETIME = '1 Mar 2022', @EndDate DATETIME = '31 Mar 2022'
+--DECLARE @SalespointIDs VARCHAR(MAX) = '33', @StartDate DATETIME = '1 Mar 2022', @EndDate DATETIME = '31 Mar 2022'
+
+DECLARE @tmpIDs TABLE (ID INT NOT NULL)
+INSERT INTO @tmpIDs SELECT * FROM STRING_SPLIT(@SalespointIDs, ',')
 
 DECLARE @tmpSalesOrders TABLE (SRID INT NOT NULL, OrderDate DATETIME NOT NULL)
 INSERT INTO @tmpSalesOrders(SRID, OrderDate)
 SELECT so.SRID, so.OrderDate
 FROM SalesOrders AS so
 WHERE CAST(so.OrderDate AS DATE) BETWEEN CAST(@StartDate AS DATE) AND CAST(@EndDate AS DATE)
+AND so.SalesPointID IN (SELECT ID FROM @tmpIDs)
 GROUP BY so.SRID, so.OrderDate
 
 DECLARE @tOrderDate DATETIME
@@ -26,4 +30,4 @@ INNER JOIN MHNode MHT ON SPMH.NodeID = MHT.NodeID
 INNER JOIN MHNode MHA ON MHT.ParentID = MHA.NodeID
 INNER JOIN MHNode MHR ON MHA.ParentID = MHR.NodeID
 
-WHERE SP.[Status] = 16 AND e.[Status] = 16 AND e.EntryModule = 3
+WHERE SP.[Status] = 16 AND e.[Status] = 16 AND e.EntryModule = 3 AND e.SalesPointID IN (SELECT ID FROM @tmpIDs)
