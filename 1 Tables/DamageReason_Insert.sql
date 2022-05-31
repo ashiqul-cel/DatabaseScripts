@@ -1,0 +1,6 @@
+
+INSERT [dbo].[DamageReason] ([Code], [Description], [PositionValue], [CreateDate], [CreatedBy], [Status], [SystemID], [ParentReason]) VALUES (N'001', N'Expired', 1, GETDATE(), -9, 16, 8, N'Expiry Recall')
+INSERT [dbo].[DamageReason] ([Code], [Description], [PositionValue], [CreateDate], [CreatedBy], [Status], [SystemID], [ParentReason]) VALUES (N'002', N'Discoloured Product', 2, GETDATE(), -9, 16, 8, N'Damage/Trade Return')
+INSERT [dbo].[DamageReason] ([Code], [Description], [PositionValue], [CreateDate], [CreatedBy], [Status], [SystemID], [ParentReason]) VALUES (N'003', N'Microbial growth', 3, GETDATE(), -9, 16, 8, N'Damage/Trade Return')
+INSERT [dbo].[DamageReason] ([Code], [Description], [PositionValue], [CreateDate], [CreatedBy], [Status], [SystemID], [ParentReason]) VALUES (N'004', N'Pack Shortage', 4, GETDATE(), -9, 16, 8, N'Pack Shortage')
+INSERT [dbo].[DamageReason] ([Code], [Description], [PositionValue], [CreateDate], [CreatedBy], [Status], [SystemID], [ParentReason]) VALUES (N'005', N'Under Weight/Less Contents', 5, GETDATE(), -9, 16, 8, N'Damage/Trade Return')
