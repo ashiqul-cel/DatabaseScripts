@@ -1,17 +1,17 @@
-CREATE PROCEDURE [dbo].[rptInhouseDamageDumpArla]
+ALTER PROCEDURE [dbo].[rptInhouseDamageDumpArla]
 @StartDate DATETIME, @EndDate DATETIME
 AS
 SET NOCOUNT ON;
 
---DECLARE @StartDate DATETIME = '1 May 2022', @EndDate DATETIME = '30 May 2022'
+--DECLARE @StartDate DATETIME = '1 May 2022', @EndDate DATETIME = '31 May 2022'
 
 SELECT MH.Region, MH.TownName, MH.[DB Code], MH.[DB Name],
-st.TranNo [Transaction no], CONVERT(VARCHAR, st.TranDate, 106) [Transaction date], s.Code [SKU Code], s.Name [SKU Name], sar.Name Reason,
-sti.InvoicePrice, sti.Quantity, sti.InvoicePrice * sti.Quantity [Value], CONVERT(DECIMAL(10,2), sti.Quantity * s.[Weight] * 0.001) KG
-FROM StockTrans AS st
-INNER JOIN StockTranItem AS sti ON sti.TranID = st.TranID
-INNER JOIN SKUs AS s ON s.SKUID = sti.SKUID
-INNER JOIN StockAdjustmentReasons AS sar ON sar.ReasonID = st.ReasonID
+id.TranNo [Transaction no], CONVERT(VARCHAR, id.TranDate, 106) [Transaction date], s.Code [SKU Code], s.Name [SKU Name], dr.[Description] Reason,
+idi.InvPrice InvoicePrice, idi.Quantity, idi.InvPrice * idi.Quantity [Value], CONVERT(DECIMAL(10,2), idi.Quantity * s.[Weight] * 0.001) KG
+FROM InhouseStockDamage AS id
+INNER JOIN InhouseStockDamageItem AS idi ON idi.InhouseStockDamageID = id.InhouseStockDamageID
+INNER JOIN SKUs AS s ON s.SKUID = idi.SKUID
+INNER JOIN DamageReason AS dr ON dr.DamageReasonID = idi.DamageReasionID
 INNER JOIN
 (
 	SELECT SP.SalesPointID, MHR.Name [Region], SP.TownName, SP.Code [DB Code], SP.Name [DB Name]
@@ -20,6 +20,6 @@ INNER JOIN
 	INNER JOIN MHNode MHT ON SPMH.NodeID = MHT.NodeID
 	INNER JOIN MHNode MHA ON MHT.ParentID = MHA.NodeID
 	INNER JOIN MHNode MHR ON MHA.ParentID = MHR.NodeID
-) MH ON MH.SalesPointID = st.SalesPointID
+) MH ON MH.SalesPointID = id.DistributorID
 
-WHERE TranTypeID = 26 AND CAST(st.TranDate AS DATE) BETWEEN CAST(@StartDate AS DATE) AND CAST(@EndDate AS DATE)
+WHERE CAST(id.TranDate AS DATE) BETWEEN CAST(@StartDate AS DATE) AND CAST(@EndDate AS DATE)
