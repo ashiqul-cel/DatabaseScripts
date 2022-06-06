@@ -1,0 +1,20 @@
+CREATE TABLE [dbo].[DSRMonthlyTarget](
+	[DSRMonthlyTargetID] [int] NOT NULL,
+	[DistributorID] [int] NOT NULL,
+	[WarehouseID] [int] NULL,
+	[Year] [int] NOT NULL,
+	[Month] [int] NOT NULL,
+	[SRID] [int] NOT NULL,
+	[TargetValue] [decimal](18, 2) NOT NULL,
+	[PerformanceDays] [decimal](18, 2) NULL,
+	[BaseTargetValue] [decimal](18, 2) NULL,
+	[Status] [int] NULL,
+	[CreatedBy] [int] NULL,
+	[SystemID] [int] NULL,
+	[ChannelCode] [varchar](50) NULL,
+	[DSRCode] [varchar](20) NULL,
+	[JCYearID] [int] NULL,
+	[JCMonthID] [int] NULL,
+	[TargetValueUBL] [decimal](18, 2) NULL,
+	[TargetValueUCL] [decimal](18, 2) NULL
+) ON [PRIMARY]
