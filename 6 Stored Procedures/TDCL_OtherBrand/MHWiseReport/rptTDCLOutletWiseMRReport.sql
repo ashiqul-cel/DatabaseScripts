@@ -1,18 +1,12 @@
 ALTER PROCEDURE [dbo].[rptTDCLOutletWiseMRReport]
-@UserID INT, @StartDate DATETIME, @EndDate DATETIME, @SalesPointIDs VARCHAR(MAX), @MRStatus VARCHAR(100)
+@StartDate DATETIME, @EndDate DATETIME, @SalesPointIDs VARCHAR(MAX), @MRStatus VARCHAR(100), @SKUIDs VARCHAR(MAX)
 AS
 SET NOCOUNT ON;
 
 ---------- Filter Company Wise SKUs-----------
 DECLARE @temSKUIds TABLE (Id INT NOT NULL)
-INSERT INTO @temSKUIds
-SELECT s.SKUID
-FROM SKUs AS s
-INNER JOIN ProductHierarchies AS ph1 ON ph1.NodeID = s.ProductID
-INNER JOIN ProductHierarchies AS ph2 ON ph2.NodeID = ph1.ParentID
-INNER JOIN UserWiseCompany AS uwc ON uwc.CompanyID = ph2.ParentID
-WHERE uwc.UserID = @UserID AND uwc.[Status] = 1
-----------------------xxx---------------------
+INSERT INTO @temSKUIds SELECT * FROM STRING_SPLIT(@SKUIDs, ',')
+----------------------XXX---------------------
 
 SELECT MHR.Name [Region], 'N/A' [Area], MT.Name [Territory], 
 SP.Code [DB Code], SP.Name [DB Point Name], BR.Name [Brands Name], 
