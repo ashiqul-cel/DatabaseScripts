@@ -1,4 +1,4 @@
-ALTER PROCEDURE [dbo].[SysGenGetRptOutletTracking] 
+ALTER PROCEDURE [dbo].[SysGenGetRptOutletTrackingTDCL] 
 @StartDate DATETIME, @EndDate DATETIME, @SalesPointIDs VARCHAR(MAX), @SKUIDs VARCHAR(MAX)
 AS
 SET NOCOUNT ON;

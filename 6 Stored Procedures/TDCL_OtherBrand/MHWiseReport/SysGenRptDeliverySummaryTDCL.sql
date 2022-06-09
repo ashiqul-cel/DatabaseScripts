@@ -1,4 +1,4 @@
-ALTER PROCEDURE [dbo].[SysGenRptDeliverySummary]
+ALTER PROCEDURE [dbo].[SysGenRptDeliverySummaryTDCL]
 @salesPointID INT, @Date DATETIME, @SKUIDs VARCHAR(MAX)
 AS
 SET NOCOUNT ON;
