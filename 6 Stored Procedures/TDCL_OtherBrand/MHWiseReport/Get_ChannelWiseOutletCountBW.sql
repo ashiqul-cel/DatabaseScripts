@@ -1,9 +1,9 @@
---CREATE PROCEDURE [dbo].[Get_ChannelWiseOutletCountBW] 
---@SalesPointIDs VARCHAR(MAX), @UserID INT
---AS
---SET NOCOUNT ON;
+ALTER PROCEDURE [dbo].[Get_ChannelWiseOutletCountTDCL] 
+@SalesPointIDs VARCHAR(MAX), @UserID INT
+AS
+SET NOCOUNT ON;
 
-DECLARE @SalesPointIDs VARCHAR(MAX) = '32,33,34,35,36,37,38,39,40,58', @UserID INT = 12
+--DECLARE @SalesPointIDs VARCHAR(MAX) = '32,33,34,35,36,37,38,39,40,58', @UserID INT = 12
 
 DECLARE @temCustomerIDs TABLE (Id INT NOT NULL)
 INSERT INTO @temCustomerIDs
@@ -14,7 +14,7 @@ WHERE cb.BrandID IN
 	FROM ProductHierarchies AS br
 	INNER JOIN ProductHierarchies AS ct ON ct.NodeID = br.ParentID
 	INNER JOIN ProductHierarchies AS cm ON cm.NodeID = ct.ParentID
-	WHERE br.LevelID = 4 AND cm.NodeID IN (SELECT CompanyID FROM UserWiseCompany WHERE UserID = @UserID)
+	WHERE br.LevelID = 4 AND cm.NodeID IN (SELECT CompanyID FROM UserWiseCompany WHERE UserID = @UserID AND [Status] = 1)
 )
 
 DECLARE @temOutlets TABLE
