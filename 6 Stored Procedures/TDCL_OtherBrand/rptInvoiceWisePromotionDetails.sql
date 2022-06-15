@@ -1,4 +1,4 @@
-ALTER PROCEDURE [dbo].[rptInvoiceWisePromotionDetails]
+CREATE PROCEDURE [dbo].[rptInvoiceWisePromotionDetails]
 @SalespointIDs VARCHAR(MAX), @FromDate DATETIME, @ToDate DATETIME
 AS
 SET NOCOUNT ON;

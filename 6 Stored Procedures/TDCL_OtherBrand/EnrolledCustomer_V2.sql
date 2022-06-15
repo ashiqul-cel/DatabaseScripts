@@ -1,4 +1,4 @@
-ALTER PROCEDURE [dbo].[EnrolledCustomer]
+CREATE PROCEDURE [dbo].[EnrolledCustomer]
 @CLPID INT, @SlabID INT
 AS
 SET NOCOUNT ON;

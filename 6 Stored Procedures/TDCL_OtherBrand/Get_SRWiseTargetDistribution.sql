@@ -1,4 +1,4 @@
-CREATE OR ALTER PROCEDURE [dbo].[Get_SRWiseTargetDistribution]
+CREATE PROCEDURE [dbo].[Get_SRWiseTargetDistribution]
 @salesPointID INT, @jCYearID INT, @jCMonthID INT
 AS
 SET NOCOUNT ON;

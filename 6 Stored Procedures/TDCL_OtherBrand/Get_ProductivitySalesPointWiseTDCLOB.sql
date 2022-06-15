@@ -1,4 +1,4 @@
-ALTER PROCEDURE [dbo].[Get_ProductivitySalesPointWiseTDCLOB] 
+CREATE PROCEDURE [dbo].[Get_ProductivitySalesPointWiseTDCLOB] 
 @FromDate DATETIME, @ToDate DATETIME, @YearMonth INT, @SalesPointIDs VARCHAR(MAX), @SKUIDs VARCHAR(MAX)
 AS
 SET NOCOUNT ON;

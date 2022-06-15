@@ -1,4 +1,4 @@
-ALTER PROCEDURE [dbo].[Get_ChannelWiseOutletCountTDCL] 
+CREATE PROCEDURE [dbo].[Get_ChannelWiseOutletCountTDCL] 
 @SalesPointIDs VARCHAR(MAX), @UserID INT
 AS
 SET NOCOUNT ON;

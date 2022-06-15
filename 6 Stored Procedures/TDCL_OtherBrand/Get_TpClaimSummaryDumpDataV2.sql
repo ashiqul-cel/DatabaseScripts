@@ -1,4 +1,4 @@
-ALTER PROCEDURE [dbo].[Get_TpClaimSummaryDumpDataV2]  @StartDate DATETIME, @EndDate DATETIME 
+CREATE PROCEDURE [dbo].[Get_TpClaimSummaryDumpDataV2]  @StartDate DATETIME, @EndDate DATETIME 
 AS
 
 --DECLARE @StartDate DATETIME = '1 Mar 2022', @EndDate DATETIME = '31 Mar 2022'

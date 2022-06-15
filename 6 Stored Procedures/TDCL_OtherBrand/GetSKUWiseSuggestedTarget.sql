@@ -1,4 +1,4 @@
-ALTER PROCEDURE [dbo].[GetSKUWiseSuggestedTarget]
+CREATE PROCEDURE [dbo].[GetSKUWiseSuggestedTarget]
 @NoOfLastMonth INT
 AS
 SET NOCOUNT ON;

@@ -1,4 +1,4 @@
-ALTER PROCEDURE [dbo].[rptSRAttendance]
+CREATE PROCEDURE [dbo].[rptSRAttendance]
 @SalespointIDs VARCHAR(MAX), @StartDate DATETIME, @EndDate DATETIME
 AS
 SET NOCOUNT ON;
