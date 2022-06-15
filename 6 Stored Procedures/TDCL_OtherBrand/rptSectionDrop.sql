@@ -1,9 +1,9 @@
---CREATE PROCEDURE [dbo].[rptSectionDrop]
---@SalespointIDs VARCHAR(MAX), @StartDate DATETIME, @EndDate DATETIME
---AS
---SET NOCOUNT ON;
+CREATE PROCEDURE [dbo].[rptSectionDrop]
+@SalespointIDs VARCHAR(MAX), @StartDate DATETIME, @EndDate DATETIME
+AS
+SET NOCOUNT ON;
 
-DECLARE @SalespointIDs VARCHAR(MAX) = '38', @StartDate DATETIME = '1 Mar 2022', @EndDate DATETIME = '31 Mar 2022'
+-- DECLARE @SalespointIDs VARCHAR(MAX) = '38', @StartDate DATETIME = '1 Mar 2022', @EndDate DATETIME = '31 Mar 2022'
 
 DECLARE @temSpIds TABLE (Id INT NOT NULL)
 INSERT INTO @temSpIds SELECT * FROM STRING_SPLIT(@SalespointIDs, ',')

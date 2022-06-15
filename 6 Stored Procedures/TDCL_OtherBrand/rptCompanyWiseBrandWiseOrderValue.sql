@@ -1,14 +1,3 @@
-USE [TDCL_OtherBrand_08Aug21]
-GO
-
-/****** Object:  StoredProcedure [dbo].[rptCompanyWiseBrandWiseOrderValue]    Script Date: 9/29/2021 4:26:13 PM ******/
-SET ANSI_NULLS ON
-GO
-
-SET QUOTED_IDENTIFIER ON
-GO
-
-
 CREATE PROCEDURE [dbo].[rptCompanyWiseBrandWiseOrderValue]
 @FromDate DATETIME, @ToDate DATETIME,@SalesPointID VARCHAR(MAX), @SKUID VARCHAR(MAX)
 

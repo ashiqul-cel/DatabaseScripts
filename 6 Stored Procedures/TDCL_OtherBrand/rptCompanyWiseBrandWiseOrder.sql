@@ -1,6 +1,3 @@
-USE [TDCL_OtherBrand_08Aug21]
-GO
-
 CREATE PROCEDURE [dbo].[rptCompanyWiseBrandWiseOrder]
 @FromDate DATETIME, @ToDate DATETIME,@SalesPointID VARCHAR(MAX), @SKUID VARCHAR(MAX)
 

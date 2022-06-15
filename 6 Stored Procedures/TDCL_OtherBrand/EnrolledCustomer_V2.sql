@@ -1,6 +1,3 @@
-USE [TDCLotherbrandtest]
-GO
-
 ALTER PROCEDURE [dbo].[EnrolledCustomer]
 @CLPID INT, @SlabID INT
 AS

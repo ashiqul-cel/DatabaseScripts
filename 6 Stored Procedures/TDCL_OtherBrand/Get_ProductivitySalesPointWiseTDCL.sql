@@ -1,6 +1,3 @@
-USE [TDCLOS]
-GO
-
 CREATE PROCEDURE [dbo].[Get_ProductivitySalesPointWiseTDCL] 
 @FromDate DATETIME, @ToDate DATETIME, @SalesPointID INT, @NatID INT,
 @RegID INT, @TerID INT, @YearMonth INT

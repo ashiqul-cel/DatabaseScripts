@@ -1,6 +1,3 @@
-USE [TDCLOS]
-GO
-
 ALTER PROCEDURE [dbo].[Get_ProductivityEmployeeWiseTDCL]
 @FromDate DATETIME, @ToDate DATETIME, @SalesPointID INT, @NatID INT,
 @RegID INT, @TerID INT, @YearMonth INT
