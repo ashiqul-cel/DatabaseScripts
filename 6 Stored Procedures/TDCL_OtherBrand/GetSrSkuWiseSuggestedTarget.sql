@@ -1,4 +1,4 @@
-ALTER PROCEDURE [dbo].[GetSKUWiseSuggestedTarget]
+CREATE PROCEDURE [dbo].[GetSrSkuWiseSuggestedTarget]
 @NoOfLastMonth INT, @Month INT, @Year INT
 AS
 SET NOCOUNT ON;
@@ -8,8 +8,9 @@ SET NOCOUNT ON;
 DECLARE @SelectDate DATE = DATEFROMPARTS(@Year, @Month, 1)
 DECLARE @StartDate DATE = DATEADD(MONTH, -@NoOfLastMonth, @SelectDate), @EndDate DATE = DATEADD(DAY, -1, @SelectDate)
 
-SELECT sii.SKUID, CAST(ROUND(SUM(sii.Quantity) / @NoOfLastMonth, 0) AS INT) SuggestedTarget
+SELECT e.Code + '_' + CAST(sii.SKUID AS VARCHAR) [SRCODE_SKUID], CAST(ROUND(SUM(sii.Quantity) / @NoOfLastMonth, 0) AS INT) SuggestedTarget
 FROM SalesInvoices AS si
 INNER JOIN SalesInvoiceItem AS sii ON sii.InvoiceID = si.InvoiceID
+INNER JOIN Employees AS e ON e.EmployeeID = si.SRID
 WHERE CAST(si.InvoiceDate AS DATE) BETWEEN CAST(@StartDate AS DATE) AND CAST(@EndDate AS DATE)
-GROUP BY sii.SKUID
+GROUP BY e.Code, sii.SKUID
