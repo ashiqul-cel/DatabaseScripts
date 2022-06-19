@@ -3,20 +3,23 @@ ALTER PROCEDURE [dbo].[rptInvoiceWisePromotionDetails]
 AS
 SET NOCOUNT ON;
 
---declare @FromDate datetime = '1 Dec 2021', @ToDate datetime = '31 Dec 2021', @SalesPointIDs VARCHAR(100) = '4'
+--DECLARE @SalespointIDs VARCHAR(MAX) = '14', @FromDate DATETIME = '1 May 2022', @ToDate DATETIME = '31 May 2022'
 
-select A.SalesPointName, si.InvoiceID, A.InvoiceNo, A.OutletCode CustomerCode, A.OutletName CustomerName,
+SELECT A.SalesPointName, si.InvoiceID, A.InvoiceNo, A.OutletCode CustomerCode, A.OutletName CustomerName,
 c.Address1, c.OwnerName, c.ContactNo, A.TranDate InvoiceDate, sp.OfficeAddress,
 sum(A.TotalSalespcs) Quantity, sum(A.TotalSales) GrossValue,
-sum(A.ClaimValue) Discount, sum(A.TotalSales - A.ClaimValue) NetValue, sum(A.ClaimPcs) FreeQty, 0 GiftQty
+sum(A.ClaimValue) Discount, sum(A.TotalSales - A.ClaimValue) NetValue, sum(A.ClaimPcs) FreeQty, 0 GiftQty,
+so.OrderDate, so.OrderNo
 
 from Daily_TP_Claim_Summary_Data A
-inner join Customers c on A.OutletCode = c.Code and A.SalespointID = c.SalesPointID
-inner join SalesInvoices si on A.InvoiceNo = si.InvoiceNo and A.SalespointID = si.SalesPointID and c.CustomerID = si.CustomerID
-inner join SalesPoints AS sp ON A.SalespointID = sp.SalesPointID
+INNER JOIN Customers c ON A.OutletCode = c.Code and A.SalespointID = c.SalesPointID
+INNER JOIN SalesInvoices si ON A.InvoiceNo = si.InvoiceNo and A.SalespointID = si.SalesPointID and c.CustomerID = si.CustomerID
+INNER JOIN SalesPoints AS sp ON A.SalespointID = sp.SalesPointID
+INNER JOIN SalesOrders AS so ON so.OrderID = si.OrderID
 
 where cast(A.TranDate as date) between cast(@FromDate as date) and cast(@ToDate as date)
-and A.SalesPointID in (select number from STRING_TO_INT(@SalesPointIDs))
+and A.SalesPointID in (SELECT number from STRING_TO_INT(@SalesPointIDs))
+AND (ClaimValue > 0 OR ClaimPcs > 0)
 
 group by A.TranDate, A.SalesPointName, si.InvoiceID, A.InvoiceNo, A.OutletCode, A.OutletName,
-c.Address1, c.OwnerName, c.ContactNo, sp.OfficeAddress
+c.Address1, c.OwnerName, c.ContactNo, sp.OfficeAddress, so.OrderDate, so.OrderNo

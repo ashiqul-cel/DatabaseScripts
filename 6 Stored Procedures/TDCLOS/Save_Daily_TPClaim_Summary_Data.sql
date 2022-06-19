@@ -72,12 +72,13 @@ BEGIN
 				INNER JOIN SPSlabs SPL ON SPL.SPID = SP.PromotionID
 				INNER JOIN SalesInvoicePromotion SIP ON SIP.SalesPromotionID = SP.PromotionID AND SIP.SlabID = SPL.SlabID
 				INNER JOIN SalesInvoices SI ON SIP.SalesInvoiceID = SI.InvoiceID AND SI.SalesPointID = SPSP.SalesPointID
-				inner join customers c on si.customerid = c.customerid
-				inner join Channels ch on c.ChannelID = ch.ChannelID
-				inner join routes r on c.routeid = r.routeid
-				inner join employees e on si.srid = e.employeeid
+				INNER JOIN customers c on si.customerid = c.customerid
+				INNER JOIN SPChannels spc ON spc.SPID = SP.PromotionID
+				INNER JOIN Channels ch on c.ChannelID = ch.ChannelID AND ch.ChannelID = spc.ChannelID
+				INNER JOIN routes r on c.routeid = r.routeid
+				INNER JOIN employees e on si.srid = e.employeeid
 
-				WHERE @OnDate BETWEEN SP.StartDate AND SP.EndDate AND SI.InvoiceDate = @OnDate AND SI.SalesPointID = @SalesPoint
+				WHERE cast(@OnDate as date) BETWEEN cast(SP.StartDate as date) AND cast(SP.EndDate as date) AND cast(SI.InvoiceDate as date) = cast(@OnDate as date)AND SI.SalesPointID = @SalesPoint
 				GROUP BY SI.InvoiceDate, SP.PromotionID,SP.Name,SPL.SlabID,SPL.SlabNo,SP.StartDate,SP.EndDate,SPSP.SalesPointID,
 				S.Code,S.Name, SI.InvoiceID, S.DistributorCategoryID,si.invoiceno, c.code,c.name,r.code, r.name,e.code,e.name,s.contactno,ch.Code,ch.name
 			) T1
@@ -103,14 +104,15 @@ BEGIN
 				INNER JOIN SPSalesPoints SPSP ON SP.PromotionID = SPSP.SPID
 				INNER JOIN SalesPoints S ON S.SalesPointID = SPSP.SalesPointID
 				INNER JOIN SalesInvoices SI ON SI.SalesPointID = SPSP.SalesPointID
-				inner join customers c on si.customerid = c.customerid
-				inner join Channels ch on c.ChannelID = ch.ChannelID
-				inner join routes r on c.routeid = r.routeid
-				inner join employees e on si.srid = e.employeeid
+				INNER JOIN customers c on si.customerid = c.customerid
+				INNER JOIN SPChannels spc ON spc.SPID = SP.PromotionID
+				INNER JOIN Channels ch on c.ChannelID = ch.ChannelID AND ch.ChannelID = spc.ChannelID
+				INNER JOIN routes r on c.routeid = r.routeid
+				INNER JOIN employees e on si.srid = e.employeeid
 
-				WHERE @OnDate BETWEEN SP.StartDate AND SP.EndDate AND SI.InvoiceDate = @OnDate AND SI.SalesPointID = @SalesPoint
+				WHERE cast(@OnDate as date) BETWEEN cast(SP.StartDate as date) AND cast(SP.EndDate as date) AND cast(SI.InvoiceDate as date) = cast(@OnDate as date) AND SI.SalesPointID = @SalesPoint
 				and si.invoiceid not in (select si.invoiceid from SalesInvoicePromotion sip join salesinvoices si on sip.SalesInvoiceID = SI.InvoiceID 
-				where si.invoicedate = @OnDate and si.salespointid = @SalesPoint and sip.SalesPromotionID = sp.PromotionID)
+				where cast(si.invoicedate as date) = cast(@OnDate as date) and si.salespointid = @SalesPoint and sip.SalesPromotionID = sp.PromotionID)
 				GROUP BY SI.InvoiceDate, SP.PromotionID,SP.Name,SP.StartDate,SP.EndDate,SPSP.SalesPointID,
 				S.Code,S.Name, SI.InvoiceID, S.DistributorCategoryID,si.invoiceno, c.code,c.name,r.code, r.name,e.code,e.name,s.contactno,ch.Code,ch.name
 			)T where isnull(t.totalsales,0) > 0
