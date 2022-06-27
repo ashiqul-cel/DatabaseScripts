@@ -1,24 +1,20 @@
 USE [BW_OnlineSales]
 GO
 
---CREATE PROCEDURE [dbo].[Get_ProductivityDumpDataBW] 
---@FromDate DATETIME, 
---@ToDate DATETIME,
---@YearMonth INT, 
---@ApliedDateRange INT
---AS
---SET NOCOUNT ON;
-
-SET STATISTICS IO ON 
-SET STATISTICS TIME ON
-
-DECLARE @FromDate DATETIME = '1 Jun 2022', @ToDate DATETIME = '26 Jun 2022', @YearMonth INT = 202206, @ApliedDateRange INT = 22
+ALTER PROCEDURE [dbo].[Get_ProductivityDumpDataBW] 
+@FromDate DATETIME, 
+@ToDate DATETIME,
+@YearMonth INT, 
+@ApliedDateRange INT
+AS
+SET NOCOUNT ON;
 
 DECLARE @LastDayOfMonth DATE =  DATEADD(d, -1, DATEADD(m, DATEDIFF(m, 0, @FromDate) + 1, 0))
 DECLARE @TotalWorkingDays INT =  [dbo].[BPWorkingDays] (@LastDayOfMonth, DATEADD(month, DATEDIFF(month, 0, @LastDayOfMonth), 0))
 
+------ TEMP TABLE ------
 
-DECLARE @tmpInvoices TABLE
+CREATE TABLE #tmpInvoices
 (
 	InvoiceID INT NOT NULL,
 	SRID INT NOT NULL,
@@ -26,12 +22,29 @@ DECLARE @tmpInvoices TABLE
 	NoSalesReasonID INT NULL,
 	CustomerID INT NOT NULL
 )
-INSERT INTO @tmpInvoices
+CREATE NONCLUSTERED INDEX ix_tmpInvoices ON #tmpInvoices (SalesPointID, SRID) INCLUDE (InvoiceID)
+INSERT INTO #tmpInvoices
 (InvoiceID, SRID, SalesPointID, NoSalesReasonID, CustomerID)
 SELECT si.InvoiceID, si.SRID, si.SalesPointID, si.NoSalesReasonID, si.CustomerID
 FROM SalesInvoices AS si
 WHERE CAST(si.InvoiceDate AS DATE) BETWEEN @FromDate AND @ToDate
 
+CREATE TABLE #tmpOrders
+(
+	OrderID INT NOT NULL,
+	SRID INT NOT NULL,
+	SalesPointID INT NOT NULL,
+	CustomerID INT NOT NULL,
+	GrossValue MONEY NULL
+)
+CREATE NONCLUSTERED INDEX ix_tmpOrders ON #tmpOrders (SalesPointID, SRID) INCLUDE (GrossValue)
+INSERT INTO #tmpOrders
+(OrderID, SRID, SalesPointID, CustomerID, GrossValue)
+SELECT so.OrderID, so.SRID, so.SalesPointID, so.CustomerID, so.GrossValue
+FROM SalesOrders AS so
+WHERE CAST(so.OrderDate AS DATE) BETWEEN @FromDate AND @ToDate
+
+------ TEMP TABLE ------
 
 SELECT x.RegionCode, x.Region, x.AreaCode, x.Area, x.TerritoryCode, x.Territory, x.DBCode, x.DBName, x.DBStatus,
 x.TownName, x.SRID, x.SRCode, x.SRName, x.TotalOutlet, 
@@ -78,21 +91,21 @@ FROM
 	[dbo].[GetScheduledCallOrderBW](SP.SalesPointID, E.EmployeeID, @FromDate, @ToDate) Scheduledcall
 
 	--,(SELECT COUNT(SO.CustomerID) FROM SalesOrders SO WHERE SO.OrderDate Between @FromDate AND @ToDate AND SO.SRID = E.EmployeeID AND SO.SalesPointID = SP.SalesPointID AND SO.NoOrderReasonID IS NULL) Productivecall
-	,(SELECT COUNT(*) FROM @tmpInvoices AS si WHERE si.SRID = E.EmployeeID AND si.SalesPointID = SP.SalesPointID AND (si.NoSalesReasonID IS NULL OR si.NoSalesReasonID = -1)) Productivecall
+	,(SELECT COUNT(*) FROM #tmpInvoices AS si WHERE si.SRID = E.EmployeeID AND si.SalesPointID = SP.SalesPointID AND (si.NoSalesReasonID IS NULL OR si.NoSalesReasonID = -1)) Productivecall
 
-	,(SELECT COUNT(Distinct SO.CustomerID) FROM SalesOrders SO WHERE SO.OrderDate Between @FromDate AND @ToDate AND SO.SRID = E.EmployeeID AND SO.SalesPointID = SP.SalesPointID) Visitedcall
+	,(SELECT COUNT(Distinct SO.CustomerID) FROM #tmpOrders SO WHERE SO.SRID = E.EmployeeID AND SO.SalesPointID = SP.SalesPointID) Visitedcall
 
-	,(SELECT COUNT(Distinct SI.CustomerID) FROM @tmpInvoices SI WHERE SI.SRID = E.EmployeeID AND SI.SalesPointID = SP.SalesPointID) NoOfBilledOutlet
+	,(SELECT COUNT(Distinct SI.CustomerID) FROM #tmpInvoices SI WHERE SI.SRID = E.EmployeeID AND SI.SalesPointID = SP.SalesPointID) NoOfBilledOutlet
 
-	,(SELECT COUNT(SII.SKUID) FROM SalesInvoices SI INNER JOIN SalesInvoiceItem SII ON SI.InvoiceID = SII.InvoiceID WHERE SI.InvoiceDate Between @FromDate AND @ToDate AND SI.SRID = E.EmployeeID AND SI.SalesPointID = SP.SalesPointID) TLS
+	,(SELECT COUNT(SII.SKUID) FROM #tmpInvoices SI INNER JOIN SalesInvoiceItem SII ON SI.InvoiceID = SII.InvoiceID WHERE SI.SRID = E.EmployeeID AND SI.SalesPointID = SP.SalesPointID) TLS
 
 	,ISNULL((SELECT SUM(TDIS.TargetValue) FROM TargetDistributionItemBySR TDIS WHERE TDIS.YearMonth=@YearMonth AND TDIS.SRID = E.EmployeeID AND TDIS.SalesPointID = SP.SalesPointID),0) TotalTarget
 
 	,ISNULL((SELECT (SUM(TDIS.TargetValue)*@ApliedDateRange)/@TotalWorkingDays FROM TargetDistributionItemBySR TDIS WHERE TDIS.YearMonth=@YearMonth AND TDIS.SRID = E.EmployeeID AND TDIS.SalesPointID = SP.SalesPointID),0)TillDateTarget
 
-	,ISNULL((SELECT SUM(So.GrossValue) FROM SalesOrders So WHERE So.OrderDate Between @FromDate AND @ToDate AND So.SRID = E.EmployeeID AND So.SalesPointID = SP.SalesPointID),0)TotalOrderTillDate
+	,ISNULL((SELECT SUM(So.GrossValue) FROM #tmpOrders So WHERE So.SRID = E.EmployeeID AND So.SalesPointID = SP.SalesPointID),0)TotalOrderTillDate
 
-	,ISNULL((SELECT SUM(SII.Quantity*SII.TradePrice) FROM SalesInvoices SI INNER JOIN SalesInvoiceItem SII ON SI.InvoiceID = SII.InvoiceID WHERE SI.InvoiceDate Between @FromDate AND @ToDate AND SI.SRID = E.EmployeeID AND SI.SalesPointID = SP.SalesPointID),0)TotalSalesTillDate
+	,ISNULL((SELECT SUM(SII.Quantity*SII.TradePrice) FROM #tmpInvoices SI INNER JOIN SalesInvoiceItem SII ON SI.InvoiceID = SII.InvoiceID WHERE SI.SRID = E.EmployeeID AND SI.SalesPointID = SP.SalesPointID),0)TotalSalesTillDate
 
 	FROM
 	(
@@ -127,7 +140,9 @@ GROUP BY
 x.RegionCode, x.Region, x.AreaCode, x.Area, x.TerritoryCode, x.Territory, x.DBCode, x.DBName, x.DBStatus, x.TownName, x.SRID, x.SRCode, x.SRName, x.TotalOutlet, x.Scheduledcall,  
 x.Productivecall, x.Visitedcall, x.NoOfBilledOutlet, x.TLS, x.TotalTarget, x.TillDateTarget, x.TotalOrderTillDate, x.TotalSalesTillDate
 
-SET NOCOUNT OFF
+------ DROP TEMP TABLE ------
+DROP TABLE #tmpInvoices
+DROP TABLE #tmpOrders
+------ DROP TEMP TABLE ------
 
-SET STATISTICS IO OFF
-SET STATISTICS TIME OFF
+SET NOCOUNT OFF
