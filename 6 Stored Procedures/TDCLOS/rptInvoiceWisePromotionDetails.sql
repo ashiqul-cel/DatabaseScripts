@@ -15,7 +15,7 @@ from Daily_TP_Claim_Summary_Data A
 INNER JOIN Customers c ON A.OutletCode = c.Code and A.SalespointID = c.SalesPointID
 INNER JOIN SalesInvoices si ON A.InvoiceNo = si.InvoiceNo and A.SalespointID = si.SalesPointID and c.CustomerID = si.CustomerID
 INNER JOIN SalesPoints AS sp ON A.SalespointID = sp.SalesPointID
-INNER JOIN SalesOrders AS so ON so.OrderID = si.OrderID
+LEFT JOIN SalesOrders AS so ON so.OrderID = si.OrderID
 
 where cast(A.TranDate as date) between cast(@FromDate as date) and cast(@ToDate as date)
 and A.SalesPointID in (SELECT number from STRING_TO_INT(@SalesPointIDs))
